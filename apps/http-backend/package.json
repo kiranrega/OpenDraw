@@ -1,0 +1,20 @@
+{
+  "name": "http-backend",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc --b",
+    "dev": "tsc --b && node ./dist/index.js",
+    "start": "tsc --b && node ./dist/index.js"
+  },
+  "dependencies": {
+    "@repo/typescript-config": "workspace:*",
+    "@types/express": "^5.0.3",
+    "express": "^5.1.0"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}
