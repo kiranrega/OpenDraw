@@ -1,7 +1,7 @@
 import express, { json } from 'express'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
-
+import { CreateSchema, SignInSchema } from '@repo/common/types'
 require('dotenv').config();
 
 const app = express()
@@ -10,20 +10,37 @@ app.use(json())
 app.post('/signup', (req, res) => {
     const {username, password, email} = req.body
 
-    const hashedPassword = bcrypt.hash(password, 10)
+    const validations = CreateSchema.safeParse({ username, password, email });
 
-    /* store in DB the obj 
-        {
-            username,
-            password: hashedPassword,
-            email
-        } 
-    */
+    if (!validations.success) {
+        res.send({
+            message: "Incorrect format",
+            error: validations.error.issues && validations.error.issues[0] && validations.error.issues[0].message
+        })
+    } else {
+         const hashedPassword = bcrypt.hash(password, 10)
+
+            /* store in DB the obj 
+                {
+                    username,
+                    password: hashedPassword,
+                    email
+                } 
+            */
+    }
 })
 
 app.post('/signin', async (req, res) => {
-    const {username, password} = req.body  
+    const {email, password} = req.body  
 
+     const validations = SignInSchema.safeParse({ email, password });
+
+    if (!validations.success) {
+        res.send({
+            message: "Incorrect format",
+            error: validations.error.issues && validations.error.issues[0] && validations.error.issues[0].message
+        })
+    } else {
     const matchedPassword = await bcrypt.compare(password, 'encryptedpassword')
     if (matchedPassword) {
         const jwtSecret = process.env.JWT_SCREAT
@@ -32,16 +49,17 @@ app.post('/signin', async (req, res) => {
         }
         
         const token = jwt.sign({
-            username
+            email
         }, jwtSecret)
         
         res.json({ token })
     } else {
         res.status(401).json({ error: 'Invalid credentials' })
     }
+    }
 })
 
-app.post('/createroom', (req, res) => {
+app.post('/room', (req, res) => {
     const {username, password} = req.body  
 })
 
