@@ -2,12 +2,13 @@ import express, { json } from 'express'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import { CreateSchema, SignInSchema } from '@repo/common/types'
+import { prismaClient } from '@repo/db/client'
 require('dotenv').config();
 
 const app = express()
 app.use(json())
 
-app.post('/signup', (req, res) => {
+app.post('/signup', async (req, res) => {
     const {username, password, email} = req.body
 
     const validations = CreateSchema.safeParse({ username, password, email });
@@ -18,7 +19,15 @@ app.post('/signup', (req, res) => {
             error: validations.error.issues && validations.error.issues[0] && validations.error.issues[0].message
         })
     } else {
-         const hashedPassword = bcrypt.hash(password, 10)
+         const hashedPassword = await bcrypt.hash(password, 10)
+         const User = prismaClient.user.create({
+                data :{
+                name: username,
+                email,
+                password: hashedPassword,
+                photo: ""
+            }
+         })
 
             /* store in DB the obj 
                 {
