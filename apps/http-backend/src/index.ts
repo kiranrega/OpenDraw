@@ -9,10 +9,10 @@ import {
 import { prismaClient } from "@repo/db/client";
 import { auth } from "./auth/auth";
 require("dotenv").config();
-
+const cors = require('cors');
 const app = express();
 app.use(json());
-
+app.use(cors())
 app.post("/signup", async (req, res) => {
   const { username, password, email } = req.body;
   console.log(username, password, email);
