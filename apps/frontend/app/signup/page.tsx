@@ -16,6 +16,7 @@ const SignUpPage: React.FC = () => {
     confirmPassword: ''
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [errors, setErrors] = useState<string []>([]);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -25,7 +26,12 @@ const SignUpPage: React.FC = () => {
     e.preventDefault();
     setIsLoading(true);
     // Simulate API call
-    axios.post('/signup', formData)
+    if (formData.password !== formData.confirmPassword) {
+      setErrors(['Passwords do not match']);
+      setIsLoading(false);
+      return;
+    }
+    axios.post('http://localhost:3001/signup', formData)
       .then(response => {
         console.log('Sign up successful:', response.data);
         // Handle successful sign up (e.g., redirect to dashboard)
@@ -223,7 +229,21 @@ const SignUpPage: React.FC = () => {
               >
                 {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
               </motion.button>
+
             </motion.div>
+
+            {errors.length > 0 && (
+              <motion.div 
+                className="bg-red-600/20 border border-red-400/50 text-red-200 px-4 py-3 rounded-lg"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5 }}
+              >
+                {errors.map((error, index) => (
+                  <p key={index} className="text-sm">{error}</p>
+                ))}
+              </motion.div>
+            )}
 
             {/* Submit Button */}
             <motion.button

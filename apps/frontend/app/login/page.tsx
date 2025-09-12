@@ -20,19 +20,17 @@ const SignInPage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    axios.post('/login', formData)
+    axios.post('http://localhost:3001/signin', formData)
       .then(response => {
-        console.log('Sign in successful:', response.data);
-        // Handle successful sign in (e.g., redirect to dashboard)
+        localStorage.setItem('token', response.data.token);
       })
       .catch(error => {
         console.error('Sign in error:', error);
-        // Handle sign in error (e.g., show error message)
       })
       .finally(() => {
         setIsLoading(false);
       })
-    console.log('Sign in submitted:', formData);
+    // console.log(formData);
   };
 
   return (
