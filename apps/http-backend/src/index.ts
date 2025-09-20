@@ -7,9 +7,10 @@ import {
   SignInSchema,
 } from "@repo/common/types";
 import { prismaClient } from "@repo/db/client";
-import { auth } from "./auth/auth";
-require("dotenv").config();
-const cors = require('cors');
+import { auth } from "./auth/auth.js";
+import dotenv from "dotenv";
+dotenv.config();
+import cors from 'cors';
 const app = express();
 app.use(json());
 app.use(cors())
@@ -141,6 +142,19 @@ app.get("/chats/:roomId", async (req, res) => {
   res.send({
     messages
   })
+})
+
+app.get("/room/:slug", async (req, res) => {
+    const slug = req.params.slug;
+    const room = await prismaClient.room.findFirst({
+        where: {
+            slug
+        }
+    });
+
+    res.json({
+        room
+    })
 })
 
 app.listen(3001);

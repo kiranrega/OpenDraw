@@ -4,9 +4,11 @@ import { motion } from 'framer-motion';
 import { Eye, EyeOff, Palette, ArrowRight, Mail, Lock } from 'lucide-react';
 import  Link  from 'next/link';
 import axios from 'axios';
+import { useRouter } from "next/navigation";
 
 const SignInPage: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const router = useRouter()
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -23,6 +25,7 @@ const SignInPage: React.FC = () => {
     axios.post('http://localhost:3001/signin', formData)
       .then(response => {
         localStorage.setItem('token', response.data.token);
+        router.push('/dashboard')
       })
       .catch(error => {
         console.error('Sign in error:', error);
@@ -30,7 +33,6 @@ const SignInPage: React.FC = () => {
       .finally(() => {
         setIsLoading(false);
       })
-    // console.log(formData);
   };
 
   return (
