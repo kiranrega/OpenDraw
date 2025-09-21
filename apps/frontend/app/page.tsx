@@ -6,6 +6,7 @@ import {
   Palette, Users, Download, Zap, ArrowRight, CheckCircle, Star, Github, 
   Twitter, Play, Sparkles, Layers, Share2, Lock, Smartphone 
 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 const AnimatedSection = ({ id, children, className = '' }: {id?:string, children: React.ReactNode, className?: string }) => {
   const controls = useAnimation();
@@ -80,6 +81,7 @@ const DrawingCursor = ({ x, y, color, name }: { x: string, y: string, color: str
 
 function LandingPage() {
   const [isPlaying, setIsPlaying] = useState(false);
+    const router = useRouter()
   
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -216,6 +218,9 @@ function LandingPage() {
                 }}
                 whileTap={{ scale: 0.95 }}
                 transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                onClick={() => {
+                  router.push('/login')
+                }}
               >
                 <span>Start Drawing Free</span>
                 <motion.div
@@ -443,7 +448,7 @@ function LandingPage() {
       </AnimatedSection>
 
       {/* Testimonials Section */}
-      <AnimatedSection className="py-20 bg-slate-900">
+      {/* <AnimatedSection className="py-20 bg-slate-900">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div 
             className="text-center mb-16"
@@ -514,7 +519,7 @@ function LandingPage() {
             ))}
           </motion.div>
         </div>
-      </AnimatedSection>
+      </AnimatedSection> */}
 
       {/* CTA Section */}
       <AnimatedSection className="py-20 bg-gradient-to-r from-emerald-900 via-teal-900 to-cyan-900">
@@ -544,6 +549,9 @@ function LandingPage() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.4 }}
+            onClick={() => {
+              router.push('/login')
+            }}
           >
             <span>Get Started Free</span>
             <motion.div

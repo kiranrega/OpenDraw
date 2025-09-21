@@ -1,4 +1,4 @@
-import express, { json } from "express";
+import express, { json, Request } from "express";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import {
@@ -8,12 +8,18 @@ import {
 } from "@repo/common/types";
 import { prismaClient } from "@repo/db/client";
 import { auth } from "./auth/auth.js";
-import dotenv from "dotenv";
-dotenv.config();
 import cors from 'cors';
+import dotenv from "dotenv";
+
+dotenv.config();
 const app = express();
 app.use(json());
 app.use(cors())
+
+interface AuthRequest extends Request {
+  user?: any;
+}
+
 app.post("/signup", async (req, res) => {
   const { username, password, email } = req.body;
   const validations = CreateSchema.safeParse({ username, password, email });
@@ -143,17 +149,28 @@ app.get("/chats/:roomId", async (req, res) => {
   })
 })
 
-app.get("/room/:slug", async (req, res) => {
+app.get("/room/:slug", auth, async (req, res) => {
     const slug = req.params.slug;
     const room = await prismaClient.room.findFirst({
         where: {
             slug
         }
     });
-
     res.json({
         room
     })
+})
+
+app.get('/getrooms', auth, async (req: AuthRequest, res) => {
+  const userId = req?.user.foundUserId;
+  const rooms = await prismaClient.room.findMany({
+    where:{
+      adminId: userId
+    }
+  })
+  res.send({
+    rooms
+  })
 })
 
 app.listen(3001);

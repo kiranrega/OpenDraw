@@ -4,6 +4,7 @@ import { Circle, Square } from "lucide-react";
 import { IconButton } from "@repo/ui";
 import clsx from "clsx";
 import { Game } from "@/draw/Game";
+import useScreenSize from "@/hooks/useScreensize";
 
 export type Tool = "circle" | "rect" | "pencil";
 
@@ -17,7 +18,7 @@ export default function Canvas({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [game, setGame] = useState<Game | null>(null)
   const [selectedTool, setSelectedTool] = useState<Tool>("circle");
-
+  const { height, width } = useScreenSize()
   useEffect(() => {
     game?.setTool(selectedTool)
   }, [selectedTool, game])
@@ -38,8 +39,8 @@ export default function Canvas({
       <canvas
         id="canvas"
         ref={canvasRef}
-        width={window.innerWidth}
-        height={window.innerHeight}
+        width={width}
+        height={height}
         className="relative"
       />
       <TopBar selectedTool={selectedTool} setSelectedTool={setSelectedTool} />
