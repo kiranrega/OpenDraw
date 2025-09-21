@@ -44,7 +44,6 @@ wss.on("connection", function connection(ws, request) {
   const token = queryParams.get("token");
   if (!token) return;
   const userId = checkUser(token);
-  console.log(userId, "userId")
   if (userId == null) {
     ws.close();
     return null;
@@ -88,7 +87,6 @@ wss.on("connection", function connection(ws, request) {
           userId,
         },
       });
-      console.log(users, roomId)
       users.forEach((user) => {
         if (user.rooms.includes(roomId)) {
           user.ws.send(

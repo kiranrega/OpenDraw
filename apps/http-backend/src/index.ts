@@ -16,7 +16,6 @@ app.use(json());
 app.use(cors())
 app.post("/signup", async (req, res) => {
   const { username, password, email } = req.body;
-  console.log(username, password, email);
   const validations = CreateSchema.safeParse({ username, password, email });
 
   if (!validations.success) {
