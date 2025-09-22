@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 // import { initDraw } from "@/draw";
-import { Circle, Square } from "lucide-react";
+import { Circle, Pencil, Square } from "lucide-react";
 import { IconButton } from "@repo/ui";
 import clsx from "clsx";
 import { Game } from "@/draw/Game";
@@ -72,6 +72,14 @@ const TopBar = ({
         )}
       >
         <Square color={selectedTool === "rect" ? "green" : "white"}/>
+      </IconButton>
+      <IconButton
+        handleClick={() => setSelectedTool("pencil")}
+        className={clsx(
+          "m-1 cursor-pointer"
+        )}
+      >
+        <Pencil color={selectedTool === "pencil" ? "green" : "white"}/>
       </IconButton>
     </div>
   );
