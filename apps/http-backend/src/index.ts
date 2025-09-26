@@ -20,19 +20,31 @@ interface AuthRequest extends Request {
   user?: any;
 }
 
+// Helper to transform Zod issues into { field: [messages] } shape
+function zodIssuesToFieldErrors(issues: any[]) {
+  const errors: Record<string, string[]> = {};
+  issues.forEach((issue) => {
+    const path = (issue.path && issue.path.length > 0) ? String(issue.path[0]) : "_";
+    errors[path] = errors[path] || [];
+    errors[path].push(issue.message);
+  });
+  return errors;
+}
+
 app.post("/signup", async (req, res) => {
   const { username, password, email } = req.body;
   const validations = CreateSchema.safeParse({ username, password, email });
 
   if (!validations.success) {
-    res.send({
-      message: "Incorrect format",
-      error:
-        validations.error.issues &&
-        validations.error.issues[0] &&
-        validations.error.issues[0].message,
+    // Return 400 with structured validation errors
+    const fieldErrors = zodIssuesToFieldErrors(validations.error.issues);
+    return res.status(400).json({
+      message: "Invalid input",
+      errors: fieldErrors,
     });
-  } else {
+  }
+
+  try {
     const hashedPassword = await bcrypt.hash(password, 10);
     const User = await prismaClient.user.create({
       data: {
@@ -41,16 +53,24 @@ app.post("/signup", async (req, res) => {
         password: hashedPassword,
       },
     });
-    if (!User) {
-      res.status(403).send({
-        message: "Db Error",
-      });
-    } else {
-      res.status(200).send({
-        message: "Succesfully signed in",
-        userId: User.id,
+
+    return res.status(201).json({
+      message: "Successfully signed up",
+      userId: User.id,
+    });
+  } catch (e: any) {
+    // Handle Prisma unique constraint error (duplicate email)
+    if (e?.code === "P2002" && e?.meta?.target?.includes("email")) {
+      return res.status(409).json({
+        message: "Email already in use",
+        errors: { email: ["Email already registered"] },
       });
     }
+
+    console.error("Signup error:", e);
+    return res.status(500).json({
+      message: "Internal server error",
+    });
   }
 });
 
@@ -60,48 +80,50 @@ app.post("/signin", async (req, res) => {
   const validations = SignInSchema.safeParse({ email, password });
 
   if (!validations.success) {
-    res.send({
-      message: "Incorrect format",
-      error:
-        validations.error.issues &&
-        validations.error.issues[0] &&
-        validations.error.issues[0].message,
+    const fieldErrors = zodIssuesToFieldErrors(validations.error.issues);
+    return res.status(400).json({
+      message: "Invalid input",
+      errors: fieldErrors,
     });
-  } else {
+  }
+
+  try {
     const foundUser = await prismaClient.user.findFirst({
       where: {
         email: email,
       },
     });
+
     if (!foundUser) {
-      res.status(403).send({
-        message: "Invalid Credentials",
+      // Do not leak which field failed — respond with generic invalid credentials
+      return res.status(401).json({
+        message: "Invalid credentials",
       });
-    } else {
-      const matchedPassword = await bcrypt.compare(
-        password,
-        foundUser.password
-      );
-
-      if (matchedPassword) {
-        const jwtSecret = process.env.JWT_SCREAT;
-
-        if (!jwtSecret) {
-          return res.status(500).json({ error: "JWT secret not configured" });
-        }
-        let foundUserId = foundUser && foundUser.id;
-        const token = jwt.sign(
-          {
-            foundUserId,
-          },
-          jwtSecret
-        );
-
-        res.json({ token });
-      } else {
-        res.status(401).json({ error: "Invalid credentials" });
-      }
     }
+
+    const matchedPassword = await bcrypt.compare(password, foundUser.password);
+
+    if (!matchedPassword) {
+      return res.status(401).json({
+        message: "Invalid credentials",
+      });
+    }
+
+    // Support either env var name if typo exists
+    const jwtSecret = process.env.JWT_SECRET ?? process.env.JWT_SCREAT;
+    if (!jwtSecret) {
+      console.error("JWT secret not configured");
+      return res.status(500).json({ message: "Server configuration error" });
+    }
+
+    const token = jwt.sign({ foundUserId: foundUser.id }, jwtSecret);
+
+    return res.status(200).json({ token });
+  } catch (e) {
+    console.error("Signin error:", e);
+    return res.status(500).json({
+      message: "Internal server error",
+    });
   }
 });
 

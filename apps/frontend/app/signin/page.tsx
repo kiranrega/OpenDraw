@@ -1,53 +1,40 @@
 "use client";
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Eye, EyeOff, Palette, User, Mail, Lock, ArrowRight, CheckCircle } from 'lucide-react';
+import { Eye, EyeOff, Palette, ArrowRight, Mail, Lock } from 'lucide-react';
 import Link from 'next/link';
 import axios from 'axios';
+import { useRouter } from "next/navigation";
 
-const SignUpPage: React.FC = () => {
+const Login: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const router = useRouter();
   const [formData, setFormData] = useState({
-    name: '',
     email: '',
-    password: '',
-    confirmPassword: ''
+    password: ''
   });
   const [isLoading, setIsLoading] = useState(false);
-  const [errors, setErrors] = useState<string[]>([]);
 
-  // New state for server error message and field-level validation errors
+  // New state to show server errors and optional field-level validation errors
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[] | string> | null>(null);
-
+  
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-    // Clear local and server errors when user types
-    setErrors([]);
-    setErrorMessage(null);
-    setFieldErrors(null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // client-side check -> treat like API field error
-    if (formData.password !== formData.confirmPassword) {
-      setErrors([]);
-      setErrorMessage(null);
-      setFieldErrors({ confirmPassword: ['Passwords do not match.'] });
-      return;
-    }
-    setErrors([]);
+    setIsLoading(true);
     setErrorMessage(null);
     setFieldErrors(null);
-    setIsLoading(true);
     try {
-      const response = await axios.post('http://localhost:3001/signup', formData);
-      console.log('Sign up successful:', response.data);
-      // keep original behavior (could redirect or show success)
+      const response = await axios.post('http://localhost:3001/signin', formData);
+      localStorage.setItem('token', response.data.token);
+      router.push('/dashboard');
     } catch (err) {
       const axiosErr = err as any;
+      // Try to parse typical server error shapes
       if (axiosErr?.response?.data) {
         const data = axiosErr.response.data;
         if (typeof data === 'string') {
@@ -57,14 +44,14 @@ const SignUpPage: React.FC = () => {
           if (data.errors) setFieldErrors(data.errors);
         }
       } else {
-        setErrors([axiosErr?.message || 'An unexpected error occurred.']);
+        setErrorMessage(axiosErr?.message || 'An unexpected error occurred.');
       }
-      console.error('Sign up error:', axiosErr);
+      console.error('Sign in error:', axiosErr);
     } finally {
       setIsLoading(false);
     }
   };
-
+  
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -96,53 +83,40 @@ const SignUpPage: React.FC = () => {
             </div>
             <span className="text-2xl font-semibold text-white">DrawFlow</span>
           </Link>
-          <h1 className="text-4xl font-light text-white">Create an Account</h1>
-          <p className="text-gray-400 mt-2">Join to start collaborating and creating.</p>
+          <h1 className="text-4xl font-light text-white">Welcome Back</h1>
+          <p className="text-gray-400 mt-2">Sign in to continue your work.</p>
         </motion.div>
 
         {/* Form */}
         <motion.div variants={itemVariants}>
-          {/* Error alert (server message + field errors) */}
-          {errorMessage || fieldErrors ? (
-            <div className="mb-4 bg-red-600 text-white p-3 rounded-lg flex flex-col gap-2">
-              <div className="flex items-start justify-between">
-                <div className="text-sm font-medium">{errorMessage ?? 'There was a problem'}</div>
-                <button
-                  type="button"
-                  onClick={() => { setErrorMessage(null); setFieldErrors(null); }}
-                  className="text-white/80 hover:text-white text-xs"
-                >
-                  Close
-                </button>
-              </div>
-              {fieldErrors && (
-                <div className="text-sm text-white/90">
-                  {Object.entries(fieldErrors).map(([field, msgs]) => (
-                    <div key={field}>
-                      <strong className="capitalize">{field}:</strong>{' '}
-                      {Array.isArray(msgs) ? msgs.join(', ') : String(msgs)}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          ) : null}
+         {/* Error alert (shows server message and field errors) */}
+         {errorMessage || fieldErrors ? (
+           <div className="mb-4 bg-red-600 text-white p-3 rounded-lg flex flex-col gap-2">
+             <div className="flex items-start justify-between">
+               <div className="text-sm font-medium">{errorMessage ?? 'There was a problem'}</div>
+               <button
+                 type="button"
+                 onClick={() => { setErrorMessage(null); setFieldErrors(null); }}
+                 className="text-white/80 hover:text-white text-xs"
+               >
+                 Close
+               </button>
+             </div>
+             {fieldErrors && (
+               <div className="text-sm text-white/90">
+                 {Object.entries(fieldErrors).map(([field, msgs]) => (
+                   <div key={field}>
+                     <strong className="capitalize">{field}:</strong>{' '}
+                     {Array.isArray(msgs) ? msgs.join(', ') : String(msgs)}
+                   </div>
+                 ))}
+               </div>
+             )}
+           </div>
+         ) : null}
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Name Field */}
-            <div className="relative">
-              <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-              <input
-                type="text"
-                value={formData.name}
-                onChange={(e) => handleInputChange('name', e.target.value)}
-                className={`w-full pl-10 pr-4 py-3 bg-gray-800 border rounded-lg text-white placeholder-gray-500 focus:outline-none transition-colors ${fieldErrors?.name ? 'border-red-500' : 'border-gray-700 focus:border-gray-400'}`}
-                placeholder="Full Name"
-                
-              />
-            </div>
-            
             {/* Email Field */}
-            <div className="relative">
+            <div className="relative group">
               <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
               <input
                 type="email"
@@ -150,12 +124,12 @@ const SignUpPage: React.FC = () => {
                 onChange={(e) => handleInputChange('email', e.target.value)}
                 className={`w-full pl-10 pr-4 py-3 bg-gray-800 border rounded-lg text-white placeholder-gray-500 focus:outline-none transition-colors ${fieldErrors?.email ? 'border-red-500' : 'border-gray-700 focus:border-gray-400'}`}
                 placeholder="Email Address"
-                
+                required
               />
             </div>
 
             {/* Password Field */}
-            <div className="relative">
+            <div className="relative group">
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
               <input
                 type={showPassword ? 'text' : 'password'}
@@ -163,7 +137,7 @@ const SignUpPage: React.FC = () => {
                 onChange={(e) => handleInputChange('password', e.target.value)}
                 className={`w-full pl-10 pr-12 py-3 bg-gray-800 border rounded-lg text-white placeholder-gray-500 focus:outline-none transition-colors ${fieldErrors?.password ? 'border-red-500' : 'border-gray-700 focus:border-gray-400'}`}
                 placeholder="Password"
-                
+                required
               />
               <button
                 type="button"
@@ -174,34 +148,11 @@ const SignUpPage: React.FC = () => {
               </button>
             </div>
             
-            {/* Confirm Password Field */}
-            <div className="relative">
-              <CheckCircle className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-              <input
-                type={showConfirmPassword ? 'text' : 'password'}
-                value={formData.confirmPassword}
-                onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
-                className={`w-full pl-10 pr-12 py-3 bg-gray-800 border rounded-lg text-white placeholder-gray-500 focus:outline-none transition-colors ${fieldErrors?.confirmPassword ? 'border-red-500' : 'border-gray-700 focus:border-gray-400'}`}
-                placeholder="Confirm Password"
-                
-              />
-              <button
-                type="button"
-                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors"
-              >
-                {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-              </button>
+            <div className="text-right">
+                <a href="#" className="text-sm text-gray-400 hover:text-white hover:underline transition-colors">
+                    Forgot Password?
+                </a>
             </div>
-            
-            {/* display client-side (errors) and server messages */}
-            {errors.length > 0 && (
-              <div className="text-red-400 text-sm text-center">
-                {errors.map((error, index) => (
-                  <p key={index}>{error}</p>
-                ))}
-              </div>
-            )}
 
             {/* Submit Button */}
             <button
@@ -216,18 +167,18 @@ const SignUpPage: React.FC = () => {
                     animate={{ rotate: 360 }}
                     transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
                   />
-                  <span className="ml-2">Creating Account...</span>
+                  <span className="ml-2">Signing In...</span>
                 </>
               ) : (
                 <>
-                  <span>Create Free Account</span>
+                  <span>Sign In</span>
                   <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </>
               )}
             </button>
           </form>
         </motion.div>
-        
+
         {/* Divider */}
         <motion.div variants={itemVariants} className="relative">
           <div className="absolute inset-0 flex items-center">
@@ -237,9 +188,9 @@ const SignUpPage: React.FC = () => {
             <span className="px-2 bg-gray-900 text-gray-500">Or</span>
           </div>
         </motion.div>
-        
+
         {/* Social Login */}
-         <motion.div variants={itemVariants}>
+        <motion.div variants={itemVariants}>
           <button
             type="button"
             className="w-full flex items-center justify-center px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-gray-300 hover:bg-gray-800 transition-colors"
@@ -250,20 +201,20 @@ const SignUpPage: React.FC = () => {
             Sign in with Google
             <span className="ml-2 text-xs bg-blue-600 text-white font-semibold px-2 py-0.5 rounded-full">
                 Coming Soon
-              </span>
+             </span>
           </button>
           
         </motion.div>
 
-        {/* Sign In Link */}
+        {/* Sign Up Link */}
         <motion.div variants={itemVariants} className="text-center">
           <p className="text-gray-400">
-            Already have an account?{' '}
+            Don't have an account?{' '}
             <Link 
-              href="/signin" 
+              href={"/signup"} 
               className="font-medium text-white hover:underline"
             >
-              Sign in
+              Sign up
             </Link>
           </p>
         </motion.div>
@@ -272,4 +223,4 @@ const SignUpPage: React.FC = () => {
   );
 };
 
-export default SignUpPage;
+export default Login;

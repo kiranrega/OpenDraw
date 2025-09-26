@@ -1,17 +1,23 @@
-'use client';
-
+"use client";
 import React, { useEffect, useState } from 'react';
-import { motion, useAnimation, useInView, Variants } from 'framer-motion';
+import { motion, useAnimation, useInView } from 'framer-motion';
 import { 
-  Palette, Users, Download, Zap, ArrowRight, CheckCircle, Star, Github, 
-  Twitter, Play, Sparkles, Layers, Share2, Lock, Smartphone 
+  Palette, Users, Download, Zap, ArrowRight, Github, 
+  Play, Layers, Share2 
 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 
-const AnimatedSection = ({ id, children, className = '' }: {id?:string, children: React.ReactNode, className?: string }) => {
+const AnimatedSection = ({
+  children,
+  className = '',
+  id
+}: {
+  children: React.ReactNode;
+  className?: string;
+  id?: string;
+}) => {
   const controls = useAnimation();
   const ref = React.useRef(null);
-  const inView = useInView(ref, { once: true, margin: "-100px" });
+  const inView = useInView(ref, { once: true, margin: "-50px" });
 
   useEffect(() => {
     if (inView) {
@@ -25,55 +31,37 @@ const AnimatedSection = ({ id, children, className = '' }: {id?:string, children
       animate={controls}
       initial="hidden"
       variants={{
-        hidden: { opacity: 0, y: 50 },
-        visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } }
+        hidden: { opacity: 0, y: 20 },
+        visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } }
       }}
       className={className}
+      id={id}
     >
       {children}
     </motion.div>
   );
 };
 
-const FloatingShape = ({ delay = 0, children }: { delay?: number, children: React.ReactNode }) => (
+const DrawingCursor = ({ x, y, name }: { x: string; y: string; name: string }) => (
   <motion.div
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ 
-      opacity: 1, 
-      y: [20, -10, 20],
-      rotate: [0, 2, -2, 0]
-    }}
-    transition={{ 
-      opacity: { delay, duration: 0.6 },
-      y: { delay: delay + 0.5, duration: 4, repeat: Infinity, ease: "easeInOut" },
-      rotate: { delay: delay + 0.7, duration: 6, repeat: Infinity, ease: "easeInOut" }
-    }}
-    className="absolute"
-  >
-    {children}
-  </motion.div>
-);
-
-const DrawingCursor = ({ x, y, color, name }: { x: string, y: string, color: string, name: string }) => (
-  <motion.div
-    className="absolute"
+    className="absolute pointer-events-none"
     style={{ left: x, top: y }}
     initial={{ opacity: 0, scale: 0 }}
     animate={{ 
       opacity: 1, 
       scale: 1,
-      x: [0, 20, -10, 15, 0],
-      y: [0, -15, 25, -10, 0]
+      x: [0, 10, -5, 8, 0],
+      y: [0, -8, 15, -3, 0]
     }}
     transition={{ 
-      opacity: { duration: 0.3 },
-      scale: { duration: 0.3 },
-      x: { duration: 3, repeat: Infinity, ease: "easeInOut" },
-      y: { duration: 3, repeat: Infinity, ease: "easeInOut", delay: 0.5 }
+      opacity: { duration: 0.3, delay: 1.2 },
+      scale: { duration: 0.3, delay: 1.2 },
+      x: { duration: 3, repeat: Infinity, ease: "easeInOut", delay: 1.5 },
+      y: { duration: 3, repeat: Infinity, ease: "easeInOut", delay: 2 }
     }}
   >
-    <div className={`w-4 h-4 ${color} rounded-full border-2 border-white shadow-lg`} />
-    <div className="absolute -top-8 -left-2 bg-slate-800 text-white text-xs px-2 py-1 rounded whitespace-nowrap">
+    <div className="w-3 h-3 bg-gray-200 rounded-full border border-gray-900 shadow-sm" />
+    <div className="absolute -top-6 -left-2 bg-white text-gray-900 text-xs px-2 py-1 rounded whitespace-nowrap">
       {name}
     </div>
   </motion.div>
@@ -81,530 +69,285 @@ const DrawingCursor = ({ x, y, color, name }: { x: string, y: string, color: str
 
 function LandingPage() {
   const [isPlaying, setIsPlaying] = useState(false);
-    const router = useRouter()
-  
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1
-      }
-    }
-  };
-
-  const itemVariants:Variants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.6, ease: "easeOut" }
-    }
-  };
 
   return (
-    <div className="min-h-screen bg-slate-900 overflow-x-hidden">
+    <div className="min-h-screen bg-gray-900">
       {/* Header */}
       <motion.header 
-        initial={{ opacity: 0, y: -20 }}
+        initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="bg-slate-900/95 backdrop-blur-sm border-b border-slate-700/50 sticky top-0 z-50"
+        transition={{ duration: 0.5 }}
+        className="bg-gray-900 border-b border-gray-800 sticky top-0 z-50"
       >
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
-            <motion.div 
-              className="flex items-center space-x-2"
-              whileHover={{ scale: 1.05 }}
-              transition={{ type: "spring", stiffness: 400, damping: 10 }}
-            >
-              <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
-                <Palette className="w-5 h-5 text-white" />
+            <div className="flex items-center space-x-2">
+              <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
+                <Palette className="w-4 h-4 text-gray-900" />
               </div>
-              <span className="text-xl font-bold text-white">DrawFlow</span>
-            </motion.div>
+              <span className="text-xl font-semibold text-white">DrawFlow</span>
+            </div>
             <nav className="hidden md:flex items-center space-x-8">
-              {['Features', 'Demo', 'Pricing'].map((item, index) => (
-                <motion.a
+              {['Features', 'Demo', 'Pricing'].map((item) => (
+                <a
                   key={item}
                   href={`#${item.toLowerCase()}`}
-                  className="text-slate-300 hover:text-white transition-colors"
-                  whileHover={{ y: -2 }}
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 + 0.3 }}
+                  className="text-gray-400 hover:text-white transition-colors text-sm"
                 >
                   {item}
-                </motion.a>
+                </a>
               ))}
-              <motion.button 
-                className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white px-6 py-2 rounded-lg hover:from-indigo-600 hover:via-purple-600 hover:to-pink-600 transition-all duration-200"
-                whileHover={{ scale: 1.05, boxShadow: "0 10px 25px rgba(99, 102, 241, 0.3)" }}
-                whileTap={{ scale: 0.95 }}
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.6 }}
-              >
+              <button className="bg-white text-gray-900 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors text-sm">
                 Try Now
-              </motion.button>
+              </button>
             </nav>
           </div>
         </div>
       </motion.header>
 
       {/* Hero Section */}
-      <section className="pt-20 pb-16 bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 relative overflow-hidden">
-        {/* Floating Background Elements */}
-        <FloatingShape delay={0}>
-          <div className="w-20 h-20 bg-indigo-500/20 rounded-full blur-xl opacity-60" style={{ top: '10%', left: '10%' }} />
-        </FloatingShape>
-        <FloatingShape delay={0.2}>
-          <div className="w-16 h-16 bg-purple-500/20 rounded-lg blur-xl opacity-60" style={{ top: '20%', right: '15%' }} />
-        </FloatingShape>
-        <FloatingShape delay={0.4}>
-          <div className="w-12 h-12 bg-emerald-500/20 rounded-full blur-xl opacity-60" style={{ bottom: '30%', left: '20%' }} />
-        </FloatingShape>
-        <FloatingShape delay={0.6}>
-          <div className="w-14 h-14 bg-teal-500/20 rounded-lg blur-xl opacity-60" style={{ bottom: '20%', right: '10%' }} />
-        </FloatingShape>
-
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-          <motion.div 
-            className="text-center"
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
+      <section className="pt-20 pb-16">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
           >
-            <motion.div
-              variants={itemVariants}
-              className="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full border border-white/20 mb-8"
-            >
-              <Sparkles className="w-4 h-4 text-purple-300" />
-              <span className="text-sm font-medium text-purple-200">New: Real-time collaboration is here!</span>
-            </motion.div>
+            <div className="inline-flex items-center space-x-2 bg-gray-800 px-3 py-1 rounded-full border border-gray-700 mb-8">
+              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+              <span className="text-sm text-gray-400">Real-time collaboration</span>
+            </div>
 
-            <motion.h1 
-              variants={itemVariants}
-              className="text-5xl md:text-6xl font-bold text-white mb-6 leading-tight"
-            >
+            <h1 className="text-5xl md:text-6xl font-light text-white mb-6 leading-tight">
               Sketch Ideas That
-              <motion.span 
-                className="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent block"
-                initial={{ backgroundPosition: "0% 50%" }}
-                animate={{ backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] }}
-                transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-              >
-                Come to Life
-              </motion.span>
-            </motion.h1>
+              <span className="block font-normal">Come to Life</span>
+            </h1>
 
-            <motion.p 
-              variants={itemVariants}
-              className="text-xl text-purple-200 mb-8 max-w-3xl mx-auto leading-relaxed"
-            >
-              Create beautiful hand-drawn style diagrams and wireframes. Collaborate in real-time, 
-              export anywhere, and bring your ideas to life with our intuitive drawing tool.
-            </motion.p>
+            <p className="text-xl text-gray-400 mb-8 max-w-2xl mx-auto leading-relaxed">
+              Create beautiful hand-drawn style diagrams and wireframes. 
+              Collaborate in real-time and export anywhere.
+            </p>
 
-            <motion.div 
-              variants={itemVariants}
-              className="flex flex-col sm:flex-row gap-4 justify-center items-center"
-            >
-              <motion.button 
-                className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white px-8 py-4 rounded-xl flex items-center space-x-2 text-lg font-semibold"
-                whileHover={{ 
-                  scale: 1.05,
-                  boxShadow: "0 15px 30px rgba(99, 102, 241, 0.4)"
-                }}
-                whileTap={{ scale: 0.95 }}
-                transition={{ type: "spring", stiffness: 400, damping: 10 }}
-                onClick={() => {
-                  router.push('/login')
-                }}
-              >
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <button className="bg-white text-gray-900 px-6 py-3 rounded-lg flex items-center space-x-2 hover:bg-gray-200 transition-colors">
                 <span>Start Drawing Free</span>
-                <motion.div
-                  animate={{ x: [0, 5, 0] }}
-                  transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-                >
-                  <ArrowRight className="w-5 h-5" />
-                </motion.div>
-              </motion.button>
+                <ArrowRight className="w-4 h-4" />
+              </button>
 
-              <motion.button 
-                className="border-2 border-slate-600/50 text-slate-300 px-8 py-4 rounded-xl flex items-center space-x-2 text-lg font-semibold bg-slate-800/60 backdrop-blur-sm"
-                whileHover={{ 
-                  scale: 1.05,
-                  borderColor: "#64748B",
-                  backgroundColor: "rgba(51, 65, 85, 0.8)"
-                }}
-                whileTap={{ scale: 0.95 }}
-                transition={{ type: "spring", stiffness: 400, damping: 10 }}
-              >
-                <Github className="w-5 h-5" />
+              <button className="border border-gray-700 text-gray-300 px-6 py-3 rounded-lg flex items-center space-x-2 hover:bg-gray-800 transition-colors">
+                <Github className="w-4 h-4" />
                 <span>View on GitHub</span>
-              </motion.button>
-            </motion.div>
+              </button>
+            </div>
           </motion.div>
           
-          {/* Interactive Demo Preview */}
+          {/* Demo Preview */}
           <motion.div 
             className="mt-16"
-            initial={{ opacity: 0, y: 50, scale: 0.9 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ delay: 0.8, duration: 0.8, ease: "easeOut" }}
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4, duration: 0.6 }}
           >
-            <motion.div 
-              className="backdrop-blur-2xl bg-white/10 rounded-2xl border border-white/20 shadow-2xl overflow-hidden mx-auto max-w-4xl"
-              whileHover={{ y: -5, boxShadow: "0 25px 50px rgba(0, 0, 0, 0.3)" }}
-              transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            >
-              <div className="bg-slate-800/60 px-6 py-4 border-b border-slate-600/50 flex items-center space-x-2">
-                <motion.div className="w-3 h-3 bg-red-500 rounded-full" whileHover={{ scale: 1.2 }} />
-                <motion.div className="w-3 h-3 bg-yellow-500 rounded-full" whileHover={{ scale: 1.2 }} />
-                <motion.div className="w-3 h-3 bg-green-500 rounded-full" whileHover={{ scale: 1.2 }} />
-                <span className="ml-4 text-sm text-slate-300">DrawFlow - Collaborative Drawing</span>
-                <motion.div 
-                  className="ml-auto flex items-center space-x-2"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 1.2 }}
-                >
-                  <div className="flex -space-x-2">
-                    <div className="w-6 h-6 bg-indigo-500 rounded-full border-2 border-white" />
-                    <div className="w-6 h-6 bg-emerald-500 rounded-full border-2 border-white" />
-                    <div className="w-6 h-6 bg-purple-500 rounded-full border-2 border-white" />
+            <div className="bg-black rounded-xl border border-gray-800 overflow-hidden mx-auto max-w-4xl">
+              <div className="bg-gray-900 px-4 py-3 border-b border-gray-800 flex items-center space-x-2">
+                <div className="w-3 h-3 bg-red-400 rounded-full" />
+                <div className="w-3 h-3 bg-yellow-400 rounded-full" />
+                <div className="w-3 h-3 bg-green-400 rounded-full" />
+                <span className="ml-4 text-sm text-gray-500">DrawFlow - Collaborative Drawing</span>
+                <div className="ml-auto flex items-center space-x-2">
+                  <div className="flex -space-x-1">
+                    <div className="w-5 h-5 bg-blue-500 rounded-full border border-gray-900 text-xs flex items-center justify-center text-white font-medium">A</div>
+                    <div className="w-5 h-5 bg-green-500 rounded-full border border-gray-900 text-xs flex items-center justify-center text-white font-medium">S</div>
+                    <div className="w-5 h-5 bg-purple-500 rounded-full border border-gray-900 text-xs flex items-center justify-center text-white font-medium">J</div>
                   </div>
-                  <span className="text-xs text-slate-400">3 users online</span>
-                </motion.div>
+                  <span className="text-xs text-gray-500">3 online</span>
+                </div>
               </div>
-              <div className="h-80 bg-gradient-to-br from-slate-800 to-slate-900 relative overflow-hidden">
-                {/* Animated Drawing Elements */}
+              <div className="h-80 bg-black relative overflow-hidden">
+                {/* Simple Drawing Elements */}
                 <motion.svg
                   className="absolute inset-0 w-full h-full"
+                  viewBox="0 0 400 300"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  transition={{ delay: 1 }}
+                  transition={{ delay: 0.8 }}
                 >
                   <motion.rect
                     x="50"
-                    y="60"
-                    width="120"
-                    height="80"
+                    y="100"
+                    width="80"
+                    height="50"
                     fill="none"
-                    stroke="#6366F1"
+                    stroke="#9CA3AF"
                     strokeWidth="2"
-                    rx="8"
-                    initial={{ pathLength: 0, opacity: 0 }}
-                    animate={{ pathLength: 1, opacity: 1 }}
-                    transition={{ delay: 1.2, duration: 1.5, ease: "easeInOut" }}
+                    rx="4"
+                    initial={{ pathLength: 0 }}
+                    animate={{ pathLength: 1 }}
+                    transition={{ delay: 1, duration: 1, ease: "easeInOut" }}
                   />
                   <motion.circle
-                    cx="300"
-                    cy="100"
-                    r="40"
+                    cx="280"
+                    cy="125"
+                    r="25"
                     fill="none"
-                    stroke="#8B5CF6"
+                    stroke="#9CA3AF"
                     strokeWidth="2"
-                    initial={{ pathLength: 0, opacity: 0 }}
-                    animate={{ pathLength: 1, opacity: 1 }}
-                    transition={{ delay: 1.8, duration: 1.2, ease: "easeInOut" }}
+                    initial={{ pathLength: 0 }}
+                    animate={{ pathLength: 1 }}
+                    transition={{ delay: 1.5, duration: 0.8, ease: "easeInOut" }}
                   />
                   <motion.path
-                    d="M180 100 L250 100"
-                    stroke="#10B981"
+                    d="M140 125 L245 125"
+                    stroke="#9CA3AF"
                     strokeWidth="2"
                     fill="none"
-                    markerEnd="url(#arrowhead)"
-                    initial={{ pathLength: 0, opacity: 0 }}
-                    animate={{ pathLength: 1, opacity: 1 }}
-                    transition={{ delay: 2.5, duration: 0.8, ease: "easeInOut" }}
+                    markerEnd="url(#arrow)"
+                    initial={{ pathLength: 0 }}
+                    animate={{ pathLength: 1 }}
+                    transition={{ delay: 2, duration: 0.6, ease: "easeInOut" }}
                   />
                   <defs>
-                    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-                      <polygon points="0 0, 10 3.5, 0 7" fill="#10B981" />
+                    <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                      <polygon points="0 0, 8 3, 0 6" fill="#9CA3AF" />
                     </marker>
                   </defs>
                 </motion.svg>
 
-                {/* Animated User Cursors */}
-                <DrawingCursor x="20%" y="30%" color="bg-indigo-500" name="Alex" />
-                <DrawingCursor x="60%" y="45%" color="bg-emerald-500" name="Sarah" />
-                <DrawingCursor x="40%" y="65%" color="bg-purple-500" name="Mike" />
+                {/* User Cursors */}
+                <DrawingCursor x="20%" y="40%" name="Alex" />
+                <DrawingCursor x="65%" y="30%" name="Sam" />
+                <DrawingCursor x="45%" y="60%" name="Jo" />
 
-                {/* Play Button Overlay */}
-                <motion.div
-                  className="absolute inset-0 flex items-center justify-center"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: isPlaying ? 0 : 1 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <motion.button
-                    className="bg-white/10 backdrop-blur-sm rounded-full p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-white/20"
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    onClick={() => setIsPlaying(!isPlaying)}
+                {/* Play Button - only show when not playing */}
+                {!isPlaying && (
+                  <motion.div 
+                    className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50"
+                    initial={{ opacity: 1 }}
+                    animate={{ opacity: isPlaying ? 0 : 1 }}
+                    transition={{ duration: 0.3 }}
                   >
-                    <Play className="w-8 h-8 text-indigo-400 ml-1" fill="currentColor" />
-                  </motion.button>
-                </motion.div>
+                    <button
+                      className="bg-gray-800 rounded-full p-4 shadow-lg hover:shadow-xl transition-all duration-200 border border-gray-700 hover:scale-105"
+                      onClick={() => setIsPlaying(!isPlaying)}
+                    >
+                      <Play className="w-6 h-6 text-gray-200 ml-1" fill="currentColor" />
+                    </button>
+                  </motion.div>
+                )}
               </div>
-            </motion.div>
+            </div>
           </motion.div>
         </div>
       </section>
 
       {/* Features Section */}
-      <AnimatedSection id="features" className="py-20 bg-slate-800">
+      <AnimatedSection className="py-20 bg-black" id="features">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div 
-            className="text-center mb-16"
-            variants={containerVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-          >
-            <motion.h2 variants={itemVariants} className="text-4xl font-bold text-white mb-4">
-              Everything you need to create
-            </motion.h2>
-            <motion.p variants={itemVariants} className="text-xl text-slate-300 max-w-2xl mx-auto leading-relaxed">
-              Powerful features designed to help you sketch, collaborate, and share your ideas effortlessly.
-            </motion.p>
-          </motion.div>
+          <div className="text-center mb-16">
+            <h2 className="text-3xl font-light text-white mb-4">
+              Everything you need
+            </h2>
+            <p className="text-lg text-gray-400 max-w-2xl mx-auto">
+              Simple tools designed to help you create and collaborate effortlessly.
+            </p>
+          </div>
           
-          <motion.div 
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-            variants={containerVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-          >
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[
               {
                 icon: Palette,
                 title: "Hand-drawn Style",
-                description: "Create diagrams with a natural, hand-drawn aesthetic that makes your ideas feel more approachable and engaging.",
-                color: "from-indigo-500 to-indigo-600",
-                bgColor: "from-indigo-500/10 to-indigo-600/10"
+                description: "Natural, sketchy aesthetic that makes diagrams feel approachable and engaging."
               },
               {
                 icon: Users,
                 title: "Real-time Collaboration",
-                description: "Work together with your team in real-time. See cursors, edits, and comments as they happen.",
-                color: "from-purple-500 to-purple-600",
-                bgColor: "from-purple-500/10 to-purple-600/10"
+                description: "Work together seamlessly. See changes and cursors as they happen."
               },
               {
                 icon: Download,
                 title: "Export Anywhere",
-                description: "Export your creations as PNG, SVG, or PDF. Perfect for presentations, documentation, and sharing.",
-                color: "from-emerald-500 to-emerald-600",
-                bgColor: "from-emerald-500/10 to-emerald-600/10"
+                description: "Save as PNG, SVG, or PDF. Perfect for presentations and documentation."
               },
               {
                 icon: Zap,
                 title: "Lightning Fast",
-                description: "Built for speed and performance. No lag, no delays - just smooth, responsive drawing every time.",
-                color: "from-teal-500 to-teal-600",
-                bgColor: "from-teal-500/10 to-teal-600/10"
+                description: "Built for performance. No lag, just smooth and responsive drawing."
               },
               {
                 icon: Layers,
                 title: "Infinite Canvas",
-                description: "Never run out of space. Pan, zoom, and create without boundaries on our infinite drawing canvas.",
-                color: "from-cyan-500 to-cyan-600",
-                bgColor: "from-cyan-500/10 to-cyan-600/10"
+                description: "Never run out of space. Pan and zoom without boundaries."
               },
               {
                 icon: Share2,
                 title: "Easy Sharing",
-                description: "Share your drawings with a simple link. Control permissions and collaborate with anyone, anywhere.",
-                color: "from-pink-500 to-pink-600",
-                bgColor: "from-pink-500/10 to-pink-600/10"
+                description: "Share with a link. Control access and collaborate with anyone."
               }
-            ].map((feature, index) => (
-              <motion.div
-                key={index}
-                variants={itemVariants}
-                className={`bg-gradient-to-br ${feature.bgColor} backdrop-blur-sm p-8 rounded-2xl border border-white/10 hover:border-white/20 hover:shadow-lg transition-all duration-300 group cursor-pointer`}
-                whileHover={{ y: -5, scale: 1.02 }}
-                transition={{ type: "spring", stiffness: 300, damping: 30 }}
-              >
-                <motion.div 
-                  className={`w-12 h-12 bg-gradient-to-r ${feature.color} rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}
+            ].map((feature) => {
+              const isComingSoon = ['Export Anywhere', 'Infinite Canvas', 'Easy Sharing'].includes(feature.title);
+              
+              return (
+                <div
+                  key={feature.title}
+                  className={`text-center p-6 transition-opacity ${isComingSoon ? 'opacity-50' : ''}`}
                 >
-                  <feature.icon className="w-6 h-6 text-white" />
-                </motion.div>
-                <h3 className="text-xl font-bold text-white mb-4 group-hover:text-slate-100 transition-colors">
-                  {feature.title}
-                </h3>
-                <p className="text-slate-300 leading-relaxed group-hover:text-slate-200 transition-colors">
-                  {feature.description}
-                </p>
-              </motion.div>
-            ))}
-          </motion.div>
+                  <div className="w-12 h-12 bg-gray-800 rounded-xl flex items-center justify-center mb-4 mx-auto">
+                    <feature.icon className="w-6 h-6 text-gray-200" />
+                  </div>
+                  <h3 className="text-lg font-medium text-white mb-2 flex items-center justify-center h-7">
+                    <span>{feature.title}</span>
+                    {isComingSoon && (
+                      <span className="ml-2 text-xs bg-blue-600 text-white font-semibold px-2 py-0.5 rounded-full">
+                        Coming Soon
+                      </span>
+                    )}
+                  </h3>
+                  <p className="text-gray-400 text-sm leading-relaxed">
+                    {feature.description}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </AnimatedSection>
 
-      {/* Testimonials Section */}
-      {/* <AnimatedSection className="py-20 bg-slate-900">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div 
-            className="text-center mb-16"
-            variants={containerVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-          >
-            <motion.h2 variants={itemVariants} className="text-4xl font-bold text-white mb-4">
-              Loved by creators worldwide
-            </motion.h2>
-            <motion.p variants={itemVariants} className="text-xl text-slate-300 max-w-2xl mx-auto leading-relaxed">
-              Join thousands of designers, developers, and teams who trust DrawFlow for their creative workflow.
-            </motion.p>
-          </motion.div>
-
-          <motion.div 
-            className="grid grid-cols-1 md:grid-cols-3 gap-8"
-            variants={containerVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-          >
-            {[
-              {
-                name: "Sarah Chen",
-                role: "Product Designer at Stripe",
-                content: "DrawFlow has revolutionized how our team collaborates on wireframes. The real-time editing is seamless and the hand-drawn style makes our ideas more approachable.",
-                avatar: "https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop"
-              },
-              {
-                name: "Marcus Rodriguez",
-                role: "Engineering Manager at Figma",
-                content: "The infinite canvas and lightning-fast performance make DrawFlow our go-to tool for technical diagrams. It's like having a digital whiteboard that never runs out of space.",
-                avatar: "https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop"
-              },
-              {
-                name: "Emily Watson",
-                role: "UX Lead at Airbnb",
-                content: "I love how DrawFlow makes complex system diagrams feel approachable. The export options are fantastic - from quick PNGs to print-ready PDFs.",
-                avatar: "https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop"
-              }
-            ].map((testimonial, index) => (
-              <motion.div
-                key={index}
-                variants={itemVariants}
-                className="backdrop-blur-2xl bg-white/5 p-8 rounded-2xl border border-white/10 shadow-lg hover:shadow-xl hover:border-white/20 transition-all duration-300"
-                whileHover={{ y: -5 }}
-              >
-                <div className="flex items-center space-x-1 mb-4">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-5 h-5 text-yellow-400 fill-current" />
-                  ))}
-                </div>
-                <p className="text-slate-300 mb-6 leading-relaxed">"{testimonial.content}"</p>
-                <div className="flex items-center space-x-4">
-                  <img 
-                    src={testimonial.avatar} 
-                    alt={testimonial.name}
-                    className="w-12 h-12 rounded-full object-cover border-2 border-white/20"
-                  />
-                  <div>
-                    <h4 className="font-semibold text-white">{testimonial.name}</h4>
-                    <p className="text-sm text-slate-400">{testimonial.role}</p>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
-      </AnimatedSection> */}
-
       {/* CTA Section */}
-      <AnimatedSection className="py-20 bg-gradient-to-r from-emerald-900 via-teal-900 to-cyan-900">
-        <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
-          <motion.h2 
-            className="text-4xl font-bold text-white mb-6"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-          >
-            Ready to bring your ideas to life?
-          </motion.h2>
-          <motion.p 
-            className="text-xl text-teal-100 mb-8 leading-relaxed"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.2 }}
-          >
-            Join thousands of creators who use DrawFlow to sketch, collaborate, and share their best ideas.
-          </motion.p>
-          <motion.button 
-            className="bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 text-white px-8 py-4 rounded-xl text-lg font-semibold hover:from-emerald-600 hover:via-teal-600 hover:to-cyan-600 transition-all duration-200 flex items-center space-x-2 mx-auto"
-            whileHover={{ scale: 1.05, boxShadow: "0 15px 30px rgba(16, 185, 129, 0.3)" }}
-            whileTap={{ scale: 0.95 }}
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.4 }}
-            onClick={() => {
-              router.push('/login')
-            }}
-          >
+      <AnimatedSection className="py-20">
+        <div className="max-w-2xl mx-auto text-center px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl font-light text-white mb-4">
+            Ready to start creating?
+          </h2>
+          <p className="text-lg text-gray-400 mb-8">
+            Join creators who use DrawFlow to bring their ideas to life.
+          </p>
+          <button className="bg-white text-gray-900 px-8 py-3 rounded-lg hover:bg-gray-200 transition-colors flex items-center space-x-2 mx-auto">
             <span>Get Started Free</span>
-            <motion.div
-              animate={{ x: [0, 5, 0] }}
-              transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-            >
-              <ArrowRight className="w-5 h-5" />
-            </motion.div>
-          </motion.button>
+            <ArrowRight className="w-4 h-4" />
+          </button>
         </div>
       </AnimatedSection>
 
       {/* Footer */}
-      <footer className="bg-slate-950 text-white py-12">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div 
-            className="flex flex-col md:flex-row justify-between items-center"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-          >
+      <footer className="bg-black border-t border-gray-800">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="flex items-center space-x-2 mb-4 md:mb-0">
-              <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
-                <Palette className="w-5 h-5 text-white" />
+              <div className="w-6 h-6 bg-white rounded flex items-center justify-center">
+                <Palette className="w-4 h-4 text-black" />
               </div>
-              <span className="text-xl font-bold">DrawFlow</span>
+              <span className="font-semibold text-white">DrawFlow</span>
             </div>
-            <div className="flex items-center space-x-6">
-              <motion.a 
-                href="#" 
-                className="text-slate-400 hover:text-white transition-colors"
-                whileHover={{ scale: 1.2, rotate: 5 }}
-              >
+            <div className="flex items-center space-x-4">
+              <a href="#" className="text-gray-500 hover:text-white transition-colors">
                 <Github className="w-5 h-5" />
-              </motion.a>
-              <motion.a 
-                href="#" 
-                className="text-slate-400 hover:text-white transition-colors"
-                whileHover={{ scale: 1.2, rotate: -5 }}
-              >
-                <Twitter className="w-5 h-5" />
-              </motion.a>
+              </a>
             </div>
-          </motion.div>
-          <motion.div 
-            className="border-t border-slate-800 mt-8 pt-8 text-center text-slate-400"
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.3 }}
-          >
-            <p>&copy; 2025 DrawFlow. All rights reserved.</p>
-          </motion.div>
+          </div>
+          <div className="border-t border-gray-800 mt-8 pt-8 text-center">
+            <p className="text-sm text-gray-400">&copy; 2025 DrawFlow. All rights reserved.</p>
+          </div>
         </div>
       </footer>
     </div>
