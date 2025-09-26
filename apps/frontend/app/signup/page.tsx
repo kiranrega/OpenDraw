@@ -4,18 +4,20 @@ import { motion } from 'framer-motion';
 import { Eye, EyeOff, Palette, User, Mail, Lock, ArrowRight, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
 import axios from 'axios';
+import { useRouter } from "next/navigation";
 
 const SignUpPage: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [formData, setFormData] = useState({
-    name: '',
+    username: '',
     email: '',
     password: '',
     confirmPassword: ''
   });
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
+  const router = useRouter();
 
   // New state for server error message and field-level validation errors
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -45,6 +47,7 @@ const SignUpPage: React.FC = () => {
     try {
       const response = await axios.post('http://localhost:3001/signup', formData);
       console.log('Sign up successful:', response.data);
+      router.push('/signin');
       // keep original behavior (could redirect or show success)
     } catch (err) {
       const axiosErr = err as any;
@@ -133,8 +136,8 @@ const SignUpPage: React.FC = () => {
               <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
               <input
                 type="text"
-                value={formData.name}
-                onChange={(e) => handleInputChange('name', e.target.value)}
+                value={formData.username}
+                onChange={(e) => handleInputChange('username', e.target.value)}
                 className={`w-full pl-10 pr-4 py-3 bg-gray-800 border rounded-lg text-white placeholder-gray-500 focus:outline-none transition-colors ${fieldErrors?.name ? 'border-red-500' : 'border-gray-700 focus:border-gray-400'}`}
                 placeholder="Full Name"
                 

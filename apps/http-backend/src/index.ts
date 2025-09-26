@@ -20,7 +20,6 @@ interface AuthRequest extends Request {
   user?: any;
 }
 
-// Helper to transform Zod issues into { field: [messages] } shape
 function zodIssuesToFieldErrors(issues: any[]) {
   const errors: Record<string, string[]> = {};
   issues.forEach((issue) => {
