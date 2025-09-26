@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 // import { initDraw } from "@/draw";
-import { Circle, Pencil, Square } from "lucide-react";
+import { Circle, Hand, Pencil, Square } from "lucide-react";
 import { IconButton } from "@repo/ui";
 import clsx from "clsx";
 import { Game } from "@/draw/Game";
 import useScreenSize from "@/hooks/useScreensize";
 
-export type Tool = "circle" | "rect" | "pencil";
+export type Tool = "circle" | "rect" | "pencil" | "hand";
 
 export default function Canvas({
   roomId,
@@ -80,6 +80,14 @@ const TopBar = ({
         )}
       >
         <Pencil color={selectedTool === "pencil" ? "green" : "white"}/>
+      </IconButton>
+      <IconButton
+        handleClick={() => setSelectedTool("hand")}
+        className={clsx(
+          "m-1 cursor-pointer"
+        )}
+      >
+        <Hand color={selectedTool === "hand" ? "green" : "white"}/>
       </IconButton>
     </div>
   );
