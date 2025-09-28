@@ -126,14 +126,15 @@ app.post("/signin", async (req, res) => {
   }
 });
 
-app.post("/room", auth, async (req: any, res) => {
+app.post("/createroom", auth, async (req: any, res) => {
   const pasredData = CreateRoomSchema.safeParse(req.body);
 
   if (!pasredData.success) {
-    res.send({
+    // return structured validation errors
+    return res.status(400).json({
       message: "invalid inputs",
+      errors: pasredData.error.issues,
     });
-    return;
   }
 
   try {
@@ -145,12 +146,16 @@ app.post("/room", auth, async (req: any, res) => {
       },
     });
 
-    res.send({
-      roomId: room.id,
+    // return the full room object so client can append it directly
+    return res.status(201).json({
+      message: "room created",
+      room,
     });
   } catch (e) {
-    res.send({
-      error: e,
+    console.error("Create room error:", e);
+    return res.status(500).json({
+      message: "Internal server error",
+      error: String(e),
     });
   }
 });

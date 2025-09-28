@@ -5,6 +5,8 @@ import {
   Palette, Users, Download, Zap, ArrowRight, Github, 
   Play, Layers, Share2 
 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { v4 as uuidv4 } from 'uuid';
 
 const AnimatedSection = ({
   children,
@@ -69,7 +71,7 @@ const DrawingCursor = ({ x, y, name }: { x: string; y: string; name: string }) =
 
 function LandingPage() {
   const [isPlaying, setIsPlaying] = useState(false);
-
+  const router = useRouter();
   return (
     <div className="min-h-screen bg-gray-900">
       {/* Header */}
@@ -97,7 +99,7 @@ function LandingPage() {
                   {item}
                 </a>
               ))}
-              <button className="bg-white text-gray-900 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors text-sm">
+              <button className="bg-white text-gray-900 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors text-sm" onClick={() => router.push(`/canvas/${uuidv4()}`)}>
                 Try Now
               </button>
             </nav>

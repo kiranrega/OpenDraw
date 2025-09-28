@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from "react";
-// import { initDraw } from "@/draw";
-import { Circle, Hand, Pencil, Square } from "lucide-react";
+import { Circle, Hand, Pencil, Square, Trash2, Type, Diamond } from "lucide-react"; // Import new icons
 import { IconButton } from "@repo/ui";
 import clsx from "clsx";
 import { Game } from "@/draw/Game";
 import useScreenSize from "@/hooks/useScreensize";
 
-export type Tool = "circle" | "rect" | "pencil" | "hand";
+// 1. Extend the Tool type
+export type Tool = "circle" | "rect" | "pencil" | "hand" | "erase" | "text" | "rhombus";
 
 export default function Canvas({
   roomId,
@@ -27,12 +27,25 @@ export default function Canvas({
     if (canvasRef.current) {
       const tool = new Game(canvasRef.current, roomId, socket)
       setGame(tool)
+      // Ensure game knows current canvas pixel dimensions immediately
+      tool.resize(width, height)
 
       return () => {
         tool.destroy()
       }
     }
   }, []);
+
+  // Ensure canvas and game resize when screen size changes
+  useEffect(() => {
+    if (!canvasRef.current) return;
+    // set canvas element size and notify game
+    canvasRef.current.width = width;
+    canvasRef.current.height = height;
+    if (game) {
+      game.resize(width, height);
+    }
+  }, [width, height, game]);
 
   return (
     <div>
@@ -82,12 +95,29 @@ const TopBar = ({
         <Pencil color={selectedTool === "pencil" ? "green" : "white"}/>
       </IconButton>
       <IconButton
-        handleClick={() => setSelectedTool("hand")}
-        className={clsx(
-          "m-1 cursor-pointer"
-        )}
+        handleClick={() => setSelectedTool("rhombus")}
+        className={clsx("m-1 cursor-pointer")}
       >
-        <Hand color={selectedTool === "hand" ? "green" : "white"}/>
+        <Diamond color={selectedTool === "rhombus" ? "#34D399" : "white"} />
+      </IconButton>
+      <IconButton
+        handleClick={() => setSelectedTool("text")}
+        className={clsx("m-1 cursor-pointer")}
+      >
+        <Type color={selectedTool === "text" ? "#34D399" : "white"} />
+      </IconButton>
+
+      <IconButton
+        handleClick={() => setSelectedTool("hand")}
+        className={clsx("m-1 cursor-pointer")}
+      >
+        <Hand color={selectedTool === "hand" ? "#34D399" : "white"} />
+      </IconButton>
+      <IconButton
+        handleClick={() => setSelectedTool("erase")}
+        className={clsx("m-1 cursor-pointer")}
+      >
+        <Trash2 color={selectedTool === "erase" ? "#F87171" : "white"} />
       </IconButton>
     </div>
   );

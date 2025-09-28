@@ -98,6 +98,50 @@ wss.on("connection", function connection(ws, request) {
           );
         }
       });
+    } else if (parsedData.type === 'delete_shape') {
+        // Delete shape from database
+        const { roomId, shapeId } = parsedData;
+        
+        try {
+          // Find all chat messages in the room
+          const chatMessages = await prismaClient.chat.findMany({
+            where: {
+              roomId: Number(roomId)
+            }
+          });
+          
+          // Find the chat message that contains the shape with matching shapeId
+          for (const chatMessage of chatMessages) {
+            try {
+              const parsedMessage = JSON.parse(chatMessage.message);
+              if (parsedMessage.shape && parsedMessage.shape.id === shapeId) {
+                // Delete this chat message
+                await prismaClient.chat.delete({
+                  where: {
+                    id: chatMessage.id
+                  }
+                });
+                break;
+              }
+            } catch (e) {
+              // Skip invalid JSON messages
+              continue;
+            }
+          }
+        } catch (error) {
+          console.error('Error deleting shape from database:', error);
+        }
+        
+        // Broadcast the delete event to all clients in the room
+        users.forEach(client => {
+          if (client.rooms.includes(String(roomId))) {
+            client.ws.send(JSON.stringify({
+              type: 'delete_shape',
+              shapeId,
+              roomId
+            }));
+          }
+        });
     }
   });
 });
