@@ -18,7 +18,12 @@ export async function auth(
     res.status(401).json({ message: "No token provided" });
     return;
   }
-  const jwtSecret = process.env.JWT_SCREAT as string
+  const jwtSecret = process.env.JWT_SECRET as string;
+  if (!jwtSecret) {
+    res.status(500).json({ message: "Server configuration error" });
+    return;
+  }
+
   jwt.verify(token, jwtSecret, (err, user) => {
     if (err) {
       res.status(403).json({ message: "Invalid Credentials" });

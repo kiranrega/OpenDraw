@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Eye, EyeOff, Palette, ArrowRight, Mail, Lock } from 'lucide-react';
 import Link from 'next/link';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { useRouter } from "next/navigation";
 
 const Login: React.FC = () => {
@@ -33,7 +33,7 @@ const Login: React.FC = () => {
       localStorage.setItem('token', response.data.token);
       router.push('/dashboard');
     } catch (err) {
-      const axiosErr = err as any;
+      const axiosErr = err as AxiosError<{ message?: string; errors?: Record<string, string[] | string> }>;
       // Try to parse typical server error shapes
       if (axiosErr?.response?.data) {
         const data = axiosErr.response.data;
@@ -81,7 +81,7 @@ const Login: React.FC = () => {
             <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
               <Palette className="w-4 h-4 text-gray-900" />
             </div>
-            <span className="text-2xl font-semibold text-white">DrawFlow</span>
+            <span className="text-2xl font-semibold text-white">OpenDraw</span>
           </Link>
           <h1 className="text-4xl font-light text-white">Welcome Back</h1>
           <p className="text-gray-400 mt-2">Sign in to continue your work.</p>
@@ -209,7 +209,7 @@ const Login: React.FC = () => {
         {/* Sign Up Link */}
         <motion.div variants={itemVariants} className="text-center">
           <p className="text-gray-400">
-            Don't have an account?{' '}
+            Don&apos;t have an account?{' '}
             <Link 
               href={"/signup"} 
               className="font-medium text-white hover:underline"

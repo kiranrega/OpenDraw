@@ -1,8 +1,9 @@
 import { WebSocket, WebSocketServer } from "ws";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { prismaClient } from "@repo/db/client";
+import dotenv from "dotenv";
 
-require("dotenv").config();
+dotenv.config();
 const wss = new WebSocketServer({ port: 8080 });
 
 interface User {
@@ -14,12 +15,12 @@ interface User {
 const users: User[] = [];
 
 function checkUser(token: string): string | null {
-  const JWT_SCREAT = process.env.JWT_SCREAT;
+  const JWT_SECRET = process.env.JWT_SECRET;
   try {
-    if (!JWT_SCREAT) {
+    if (!JWT_SECRET) {
       return null;
     }
-    const decoded = jwt.verify(token, JWT_SCREAT);
+    const decoded = jwt.verify(token, JWT_SECRET);
 
     if (typeof decoded == "string") {
       return null;
@@ -99,49 +100,58 @@ wss.on("connection", function connection(ws, request) {
         }
       });
     } else if (parsedData.type === 'delete_shape') {
-        // Delete shape from database
-        const { roomId, shapeId } = parsedData;
-        
-        try {
-          // Find all chat messages in the room
-          const chatMessages = await prismaClient.chat.findMany({
-            where: {
-              roomId: Number(roomId)
-            }
-          });
-          
-          // Find the chat message that contains the shape with matching shapeId
-          for (const chatMessage of chatMessages) {
-            try {
-              const parsedMessage = JSON.parse(chatMessage.message);
-              if (parsedMessage.shape && parsedMessage.shape.id === shapeId) {
-                // Delete this chat message
-                await prismaClient.chat.delete({
-                  where: {
-                    id: chatMessage.id
-                  }
-                });
-                break;
-              }
-            } catch (e) {
-              // Skip invalid JSON messages
-              continue;
-            }
-          }
-        } catch (error) {
-          console.error('Error deleting shape from database:', error);
-        }
-        
-        // Broadcast the delete event to all clients in the room
-        users.forEach(client => {
-          if (client.rooms.includes(String(roomId))) {
-            client.ws.send(JSON.stringify({
-              type: 'delete_shape',
-              shapeId,
-              roomId
-            }));
+      // Delete shape from database
+      const { roomId, shapeId } = parsedData;
+
+      try {
+        // Find all chat messages in the room
+        const chatMessages = await prismaClient.chat.findMany({
+          where: {
+            roomId: Number(roomId)
           }
         });
+
+        // Find the chat message that contains the shape with matching shapeId
+        for (const chatMessage of chatMessages) {
+          try {
+            const parsedMessage = JSON.parse(chatMessage.message);
+            if (parsedMessage.shape && parsedMessage.shape.id === shapeId) {
+              // Delete this chat message
+              await prismaClient.chat.delete({
+                where: {
+                  id: chatMessage.id
+                }
+              });
+              break;
+            }
+          } catch (e) {
+            // Skip invalid JSON messages
+            continue;
+          }
+        }
+      } catch (error) {
+        console.error('Error deleting shape from database:', error);
+      }
+
+      // Broadcast the delete event to all clients in the room
+      users.forEach(client => {
+        if (client.rooms.includes(String(roomId))) {
+          client.ws.send(JSON.stringify({
+            type: 'delete_shape',
+            shapeId,
+            roomId
+          }));
+        }
+      });
     }
+  });
+
+  ws.on("close", () => {
+    const idx = users.findIndex((u) => u.ws === ws);
+    if (idx !== -1) users.splice(idx, 1);
+  });
+
+  ws.on("error", (err) => {
+    console.error("WebSocket error:", err);
   });
 });

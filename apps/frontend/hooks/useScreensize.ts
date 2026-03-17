@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 
 const useScreenSize = () => {
+  const isClient = typeof window !== "undefined";
   const [screenSize, setScreenSize] = useState({
-    width: window.innerWidth,
-    height: window.innerHeight,
+    width: isClient ? window.innerWidth : 0,
+    height: isClient ? window.innerHeight : 0,
   });
 
   useEffect(() => {
@@ -13,6 +14,9 @@ const useScreenSize = () => {
         height: window.innerHeight,
       });
     };
+
+    // Set initial size on mount (client-side)
+    handleResize();
 
     window.addEventListener('resize', handleResize);
 

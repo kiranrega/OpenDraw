@@ -7,14 +7,21 @@ import {
   SignInSchema,
 } from "@repo/common/types";
 import { prismaClient } from "@repo/db/client";
-import { auth } from "./auth/auth.js";
+import { auth } from "./auth/auth";
 import cors from 'cors';
 import dotenv from "dotenv";
 
 dotenv.config();
 const app = express();
 app.use(json());
-app.use(cors())
+
+// Configure CORS for production safety
+const allowedOrigins = (process.env.ALLOWED_ORIGINS || 'http://localhost:3000').split(',');
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true,
+  optionsSuccessStatus: 200
+}));
 
 interface AuthRequest extends Request {
   user?: any;
@@ -108,8 +115,7 @@ app.post("/signin", async (req, res) => {
       });
     }
 
-    // Support either env var name if typo exists
-    const jwtSecret = process.env.JWT_SECRET ?? process.env.JWT_SCREAT;
+    const jwtSecret = process.env.JWT_SECRET;
     if (!jwtSecret) {
       console.error("JWT secret not configured");
       return res.status(500).json({ message: "Server configuration error" });
@@ -126,14 +132,20 @@ app.post("/signin", async (req, res) => {
   }
 });
 
-app.post("/createroom", auth, async (req: any, res) => {
-  const pasredData = CreateRoomSchema.safeParse(req.body);
+app.post("/logout", (req, res) => {
+  // Logout is handled client-side by clearing the token
+  // This endpoint serves as a confirmation and can be used for server-side cleanup
+  res.status(200).json({ message: "Logout successful" });
+});
 
-  if (!pasredData.success) {
+app.post("/createroom", auth, async (req: any, res) => {
+  const parsedData = CreateRoomSchema.safeParse(req.body);
+
+  if (!parsedData.success) {
     // return structured validation errors
     return res.status(400).json({
       message: "invalid inputs",
-      errors: pasredData.error.issues,
+      errors: parsedData.error.issues,
     });
   }
 
@@ -141,7 +153,7 @@ app.post("/createroom", auth, async (req: any, res) => {
     const userId = req?.user.foundUserId;
     const room = await prismaClient.room.create({
       data: {
-        slug: pasredData.data.slug,
+        slug: parsedData.data.slug,
         adminId: userId,
       },
     });
@@ -160,43 +172,84 @@ app.post("/createroom", auth, async (req: any, res) => {
   }
 });
 
-app.get("/chats/:roomId", async (req, res) => {
-  const roomId = Number(req.params.roomId)
+app.get("/chats/:roomId", auth, async (req, res) => {
+  try {
+    const roomId = Number(req.params.roomId)
 
-  const messages = await prismaClient.chat.findMany({
-    where:{
-      roomId
-    },
-    orderBy:{id:"desc"},
-    take: 50
-  })
-  res.send({
-    messages
-  })
+    // Validate roomId is a valid number
+    if (isNaN(roomId) || roomId <= 0) {
+      return res.status(400).json({
+        message: "Invalid room ID",
+        errors: { roomId: ["Room ID must be a positive number"] }
+      });
+    }
+
+    const messages = await prismaClient.chat.findMany({
+      where: { roomId },
+      orderBy: { id: "desc" },
+      take: 50
+    })
+
+    res.status(200).json({ messages })
+  } catch (error) {
+    console.error("Fetch chats error:", error);
+    res.status(500).json({ message: "Failed to fetch messages" });
+  }
 })
 
 app.get("/room/:slug", auth, async (req, res) => {
+  try {
     const slug = req.params.slug;
+
+    if (!slug || typeof slug !== 'string' || slug.length === 0) {
+      return res.status(400).json({
+        message: "Invalid room slug",
+        errors: { slug: ["Room slug is required"] }
+      });
+    }
+
     const room = await prismaClient.room.findFirst({
-        where: {
-            slug
-        }
+      where: { slug }
     });
-    res.json({
-        room
-    })
-})
+
+    if (!room) {
+      return res.status(404).json({
+        message: "Room not found",
+        room: null
+      });
+    }
+
+    res.status(200).json({ room });
+  } catch (error) {
+    console.error("Fetch room error:", error);
+    res.status(500).json({ message: "Failed to fetch room" });
+  }
+});
 
 app.get('/getrooms', auth, async (req: AuthRequest, res) => {
-  const userId = req?.user.foundUserId;
-  const rooms = await prismaClient.room.findMany({
-    where:{
-      adminId: userId
-    }
-  })
-  res.send({
-    rooms
-  })
-})
+  try {
+    const userId = req?.user?.foundUserId;
 
-app.listen(3001);
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized: User ID not found" });
+    }
+
+    const rooms = await prismaClient.room.findMany({
+      where: { adminId: userId }
+    });
+
+    res.status(200).json({ rooms });
+  } catch (error) {
+    console.error("Fetch rooms error:", error);
+    res.status(500).json({ message: "Failed to fetch rooms" });
+  }
+});
+
+app.listen(3001, () => {
+  console.log('Server running on port 3001');
+});
+
+// Health check endpoint
+app.get("/health", (req, res) => {
+  res.status(200).json({ status: "healthy", timestamp: new Date().toISOString() });
+});

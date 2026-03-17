@@ -1,4 +1,3 @@
-export const JWT_SCREAT = process.env.JWT_SCREAT
+export const JWT_SECRET = process.env.JWT_SECRET ?? process.env.JWT_SCREAT;
 
-
-//"KIR@N"
+// Legacy: keep compatibility with older env var name

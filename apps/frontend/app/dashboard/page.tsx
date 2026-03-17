@@ -1,5 +1,5 @@
 'use client'
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Palette,
@@ -41,11 +41,11 @@ const Dashboard: React.FC = () => {
     
     // Original API call logic
     const token = localStorage.getItem("token");
-    let options = {
+    const options = {
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
     };
     try {
-      let response = await axios.get(`${BACKEND_URL}/getrooms`, options);
+      const response = await axios.get(`${BACKEND_URL}/getrooms`, options);
       setRooms(response.data.rooms);
     } catch (error) {
       console.error("Failed to fetch rooms:", error);
@@ -109,7 +109,7 @@ const Dashboard: React.FC = () => {
               <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
                 <Palette className="w-4 h-4 text-gray-900" />
               </div>
-              <span className="text-xl font-semibold text-white">DrawFlow</span>
+              <span className="text-xl font-semibold text-white">OpenDraw</span>
             </div>
             <div className="flex items-center space-x-4">
               <button 
@@ -203,7 +203,7 @@ const Dashboard: React.FC = () => {
             <div className="text-center py-12 px-4">
               <Search className="w-12 h-12 text-gray-500 mx-auto mb-4" />
               <h3 className="text-lg font-semibold text-white mb-2">No rooms found</h3>
-              <p className="text-gray-400">Your search for "{searchTerm}" did not match any rooms.</p>
+              <p className="text-gray-400">Your search for &quot;{searchTerm}&quot; did not match any rooms.</p>
             </div>
           )}
         </motion.div>

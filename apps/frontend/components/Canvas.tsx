@@ -34,7 +34,7 @@ export default function Canvas({
         tool.destroy()
       }
     }
-  }, []);
+  }, [roomId, socket, width, height]);
 
   // Ensure canvas and game resize when screen size changes
   useEffect(() => {

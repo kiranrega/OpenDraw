@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Eye, EyeOff, Palette, User, Mail, Lock, ArrowRight, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { useRouter } from "next/navigation";
 
 const SignUpPage: React.FC = () => {
@@ -50,7 +50,7 @@ const SignUpPage: React.FC = () => {
       router.push('/signin');
       // keep original behavior (could redirect or show success)
     } catch (err) {
-      const axiosErr = err as any;
+      const axiosErr = err as AxiosError<{ message?: string; errors?: Record<string, string[] | string> }>;
       if (axiosErr?.response?.data) {
         const data = axiosErr.response.data;
         if (typeof data === 'string') {
@@ -97,7 +97,7 @@ const SignUpPage: React.FC = () => {
             <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
               <Palette className="w-4 h-4 text-gray-900" />
             </div>
-            <span className="text-2xl font-semibold text-white">DrawFlow</span>
+            <span className="text-2xl font-semibold text-white">OpenDraw</span>
           </Link>
           <h1 className="text-4xl font-light text-white">Create an Account</h1>
           <p className="text-gray-400 mt-2">Join to start collaborating and creating.</p>

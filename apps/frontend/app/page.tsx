@@ -87,7 +87,7 @@ function LandingPage() {
               <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
                 <Palette className="w-4 h-4 text-gray-900" />
               </div>
-              <span className="text-xl font-semibold text-white">DrawFlow</span>
+              <span className="text-xl font-semibold text-white">OpenDraw</span>
             </div>
             <nav className="hidden md:flex items-center space-x-8">
               {['Features', 'Demo', 'Pricing'].map((item) => (
@@ -131,8 +131,8 @@ function LandingPage() {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <button className="bg-white text-gray-900 px-6 py-3 rounded-lg flex items-center space-x-2 hover:bg-gray-200 transition-colors">
-                <span>Start Drawing Free</span>
+              <button className="bg-white text-gray-900 px-6 py-3 rounded-lg flex items-center space-x-2 hover:bg-gray-200 transition-colors" onClick={() => router.push('/signin')}>
+                <span >Start Drawing Free</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
 
@@ -155,7 +155,7 @@ function LandingPage() {
                 <div className="w-3 h-3 bg-red-400 rounded-full" />
                 <div className="w-3 h-3 bg-yellow-400 rounded-full" />
                 <div className="w-3 h-3 bg-green-400 rounded-full" />
-                <span className="ml-4 text-sm text-gray-500">DrawFlow - Collaborative Drawing</span>
+                <span className="ml-4 text-sm text-gray-500">OpenDraw - Collaborative Drawing</span>
                 <div className="ml-auto flex items-center space-x-2">
                   <div className="flex -space-x-1">
                     <div className="w-5 h-5 bg-blue-500 rounded-full border border-gray-900 text-xs flex items-center justify-center text-white font-medium">A</div>
@@ -322,7 +322,7 @@ function LandingPage() {
             Ready to start creating?
           </h2>
           <p className="text-lg text-gray-400 mb-8">
-            Join creators who use DrawFlow to bring their ideas to life.
+            Join creators who use OpenDraw to bring their ideas to life.
           </p>
           <button className="bg-white text-gray-900 px-8 py-3 rounded-lg hover:bg-gray-200 transition-colors flex items-center space-x-2 mx-auto">
             <span>Get Started Free</span>
@@ -339,7 +339,7 @@ function LandingPage() {
               <div className="w-6 h-6 bg-white rounded flex items-center justify-center">
                 <Palette className="w-4 h-4 text-black" />
               </div>
-              <span className="font-semibold text-white">DrawFlow</span>
+              <span className="font-semibold text-white">OpenDraw</span>
             </div>
             <div className="flex items-center space-x-4">
               <a href="#" className="text-gray-500 hover:text-white transition-colors">
@@ -348,7 +348,7 @@ function LandingPage() {
             </div>
           </div>
           <div className="border-t border-gray-800 mt-8 pt-8 text-center">
-            <p className="text-sm text-gray-400">&copy; 2025 DrawFlow. All rights reserved.</p>
+            <p className="text-sm text-gray-400">&copy; 2025 OpenDraw. All rights reserved.</p>
           </div>
         </div>
       </footer>
