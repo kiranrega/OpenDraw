@@ -24,7 +24,7 @@ export async function auth(
     return;
   }
 
-  jwt.verify(token, jwtSecret, (err, user) => {
+  jwt.verify(token, jwtSecret, { algorithms: ['HS256'] }, (err, user) => {
     if (err) {
       res.status(403).json({ message: "Invalid Credentials" });
       return;

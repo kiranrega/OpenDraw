@@ -20,7 +20,7 @@ function checkUser(token: string): string | null {
     if (!JWT_SECRET) {
       return null;
     }
-    const decoded = jwt.verify(token, JWT_SECRET);
+    const decoded = jwt.verify(token, JWT_SECRET, { algorithms: ['HS256'] });
 
     if (typeof decoded == "string") {
       return null;

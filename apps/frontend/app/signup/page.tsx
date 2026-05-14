@@ -5,6 +5,7 @@ import { Eye, EyeOff, Palette, User, Mail, Lock, ArrowRight, CheckCircle } from 
 import Link from 'next/link';
 import axios, { AxiosError } from 'axios';
 import { useRouter } from "next/navigation";
+import { BACKEND_URL } from '@/config';
 
 const SignUpPage: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -45,7 +46,7 @@ const SignUpPage: React.FC = () => {
     setFieldErrors(null);
     setIsLoading(true);
     try {
-      const response = await axios.post('http://localhost:3001/signup', formData);
+      const response = await axios.post(`${BACKEND_URL}/signup`, formData);
       console.log('Sign up successful:', response.data);
       router.push('/signin');
       // keep original behavior (could redirect or show success)

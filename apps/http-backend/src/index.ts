@@ -1,6 +1,7 @@
 import express, { json, Request } from "express";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import rateLimit from "express-rate-limit";
 import {
   CreateRoomSchema,
   CreateSchema,
@@ -27,6 +28,14 @@ interface AuthRequest extends Request {
   user?: any;
 }
 
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 20,                   // max 20 attempts per IP per window
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: "Too many attempts, please try again in 15 minutes" },
+});
+
 function zodIssuesToFieldErrors(issues: any[]) {
   const errors: Record<string, string[]> = {};
   issues.forEach((issue) => {
@@ -37,7 +46,7 @@ function zodIssuesToFieldErrors(issues: any[]) {
   return errors;
 }
 
-app.post("/signup", async (req, res) => {
+app.post("/signup", authLimiter, async (req, res) => {
   const { username, password, email } = req.body;
   const validations = CreateSchema.safeParse({ username, password, email });
 
@@ -80,7 +89,7 @@ app.post("/signup", async (req, res) => {
   }
 });
 
-app.post("/signin", async (req, res) => {
+app.post("/signin", authLimiter, async (req, res) => {
   const { email, password } = req.body;
 
   const validations = SignInSchema.safeParse({ email, password });
@@ -121,7 +130,7 @@ app.post("/signin", async (req, res) => {
       return res.status(500).json({ message: "Server configuration error" });
     }
 
-    const token = jwt.sign({ foundUserId: foundUser.id }, jwtSecret);
+    const token = jwt.sign({ foundUserId: foundUser.id }, jwtSecret, { expiresIn: '7d', algorithm: 'HS256' });
 
     return res.status(200).json({ token });
   } catch (e) {

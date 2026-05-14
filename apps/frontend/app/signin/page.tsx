@@ -5,6 +5,7 @@ import { Eye, EyeOff, Palette, ArrowRight, Mail, Lock } from 'lucide-react';
 import Link from 'next/link';
 import axios, { AxiosError } from 'axios';
 import { useRouter } from "next/navigation";
+import { BACKEND_URL } from '@/config';
 
 const Login: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -29,7 +30,7 @@ const Login: React.FC = () => {
     setErrorMessage(null);
     setFieldErrors(null);
     try {
-      const response = await axios.post('http://localhost:3001/signin', formData);
+      const response = await axios.post(`${BACKEND_URL}/signin`, formData);
       localStorage.setItem('token', response.data.token);
       router.push('/dashboard');
     } catch (err) {
