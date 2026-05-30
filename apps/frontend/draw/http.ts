@@ -20,7 +20,7 @@ export async function getExistingShapes(roomId:string) {
             console.error("Failed to parse shape:", e)
             return null
         }
-    }).filter(shape => shape !== null)
+    }).filter((shape: any) => shape !== null)
     
     return shapes
 }
