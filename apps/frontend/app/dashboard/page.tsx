@@ -30,6 +30,7 @@ const Dashboard: React.FC = () => {
   const [isCreating, setIsCreating] = useState(false);
   const [rooms, setRooms] = useState<Room[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [createError, setCreateError] = useState<string | null>(null);
 
   const router = useRouter();
 
@@ -55,6 +56,7 @@ const Dashboard: React.FC = () => {
   const handleCreateRoom = async () => {
     if (!roomName.trim()) return;
     setIsCreating(true);
+    setCreateError(null);
 
     try {
       const token = localStorage.getItem("token");
@@ -69,7 +71,9 @@ const Dashboard: React.FC = () => {
       setRoomName('');
       setRoomDescription('');
       setShowCreateRoom(false);
-    } catch (err) {
+    } catch (err: any) {
+      const errorMessage = err?.response?.data?.message || err?.response?.data?.errors?.slug?.[0] || "Failed to create room";
+      setCreateError(errorMessage);
       console.error("Create room error:", err);
     } finally {
       setIsCreating(false);
@@ -238,7 +242,10 @@ const Dashboard: React.FC = () => {
               <div className="space-y-6">
                 <div>
                   <label className="block text-gray-300 font-medium mb-2 text-sm">Room Name</label>
-                  <input type="text" value={roomName} onChange={(e) => setRoomName(e.target.value)}
+                  <input type="text" value={roomName} onChange={(e) => {
+                    setRoomName(e.target.value);
+                    setCreateError(null);
+                  }}
                     className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-gray-400 transition-colors"
                     placeholder="e.g. 'Project Phoenix Design'" required
                   />
@@ -250,6 +257,11 @@ const Dashboard: React.FC = () => {
                     placeholder="What's this room about?" rows={3}
                   />
                 </div>
+                {createError && (
+                  <div className="p-3 bg-red-600/20 border border-red-600 rounded-lg">
+                    <p className="text-red-400 text-sm font-medium">{createError}</p>
+                  </div>
+                )}
                 <div className="flex flex-col sm:flex-row gap-4 pt-2">
                   <button type="button" onClick={() => setShowCreateRoom(false)} disabled={isCreating}
                     className="w-full py-3 bg-transparent border border-gray-700 text-gray-300 font-semibold rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50">

@@ -175,11 +175,18 @@ app.post("/createroom", auth, async (req: any, res) => {
       message: "room created",
       room,
     });
-  } catch (e) {
+  } catch (e: any) {
+    // Handle Prisma unique constraint error (duplicate slug)
+    if (e?.code === "P2002" && e?.meta?.target?.includes("slug")) {
+      return res.status(409).json({
+        message: "Room name already exists",
+        errors: { slug: ["This room name is already taken. Please choose a different name."] },
+      });
+    }
+
     console.error("Create room error:", e);
     return res.status(500).json({
       message: "Internal server error",
-      error: String(e),
     });
   }
 });
