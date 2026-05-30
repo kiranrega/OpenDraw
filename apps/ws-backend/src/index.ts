@@ -1,6 +1,7 @@
 import { WebSocket, WebSocketServer } from "ws";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { prismaClient } from "@repo/db/client";
+import { ChatMessageSchema } from "@repo/common/types";
 import dotenv from "dotenv";
 
 const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 8080;
@@ -82,24 +83,45 @@ wss.on("connection", function connection(ws, request) {
       const roomId = String(parsedData.roomId);
       const message = parsedData.message;
 
-      await prismaClient.chat.create({
-        data: {
-          roomId: Number(roomId),
-          message,
-          userId,
-        },
-      });
-      users.forEach((user) => {
-        if (user.rooms.includes(roomId)) {
-          user.ws.send(
-            JSON.stringify({
-              type: "chat",
-              message,
-              roomId,
-            })
-          );
+      try {
+        // Validate message contains a properly formatted shape
+        const parsedMessage = JSON.parse(message);
+        const validation = ChatMessageSchema.safeParse(parsedMessage);
+        
+        if (!validation.success) {
+          console.warn("Invalid shape data received:", validation.error);
+          ws.send(JSON.stringify({
+            type: "error",
+            message: "Invalid shape format"
+          }));
+          return;
         }
-      });
+
+        await prismaClient.chat.create({
+          data: {
+            roomId: Number(roomId),
+            message,
+            userId,
+          },
+        });
+        users.forEach((user) => {
+          if (user.rooms.includes(roomId)) {
+            user.ws.send(
+              JSON.stringify({
+                type: "chat",
+                message,
+                roomId,
+              })
+            );
+          }
+        });
+      } catch (error) {
+        console.error("Error processing chat message:", error);
+        ws.send(JSON.stringify({
+          type: "error",
+          message: "Failed to process message"
+        }));
+      }
     } else if (parsedData.type === 'delete_shape') {
       // Delete shape from database
       const { roomId, shapeId } = parsedData;

@@ -181,6 +181,57 @@ app.post("/createroom", auth, async (req: any, res) => {
   }
 });
 
+app.post("/deleteroom", auth, async (req: any, res) => {
+  const { roomId } = req.body;
+
+  if (!roomId) {
+    return res.status(400).json({
+      message: "invalid input",
+      errors: { roomId: ["Room ID is required"] }
+    });
+  }
+
+  try {
+    const userId = req?.user.foundUserId;
+    
+    // Verify user is the admin of the room
+    const room = await prismaClient.room.findUnique({
+      where: { id: Number(roomId) }
+    });
+
+    if (!room) {
+      return res.status(404).json({
+        message: "Room not found"
+      });
+    }
+
+    if (room.adminId !== userId) {
+      return res.status(403).json({
+        message: "Unauthorized: Only room admin can delete"
+      });
+    }
+
+    // Delete all associated chats first
+    await prismaClient.chat.deleteMany({
+      where: { roomId: Number(roomId) }
+    });
+
+    // Then delete the room
+    await prismaClient.room.delete({
+      where: { id: Number(roomId) }
+    });
+
+    return res.status(200).json({
+      message: "room deleted successfully"
+    });
+  } catch (e) {
+    console.error("Delete room error:", e);
+    return res.status(500).json({
+      message: "Internal server error"
+    });
+  }
+});
+
 app.get("/chats/:roomId", auth, async (req, res) => {
   try {
     const roomId = Number(req.params.roomId)
