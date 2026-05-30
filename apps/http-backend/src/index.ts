@@ -253,9 +253,9 @@ app.get('/getrooms', auth, async (req: AuthRequest, res) => {
     res.status(500).json({ message: "Failed to fetch rooms" });
   }
 });
-
-app.listen(3001, () => {
-  console.log('Server running on port 3001');
+const PORT = process.env.PORT || 3001;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
 
 // Health check endpoint

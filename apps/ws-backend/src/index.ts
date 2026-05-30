@@ -3,8 +3,9 @@ import jwt, { JwtPayload } from "jsonwebtoken";
 import { prismaClient } from "@repo/db/client";
 import dotenv from "dotenv";
 
+const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 8080;
 dotenv.config();
-const wss = new WebSocketServer({ port: 8080 });
+const wss = new WebSocketServer({ port: PORT });
 
 interface User {
   ws: WebSocket;
