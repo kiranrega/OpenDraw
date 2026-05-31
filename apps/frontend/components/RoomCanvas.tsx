@@ -3,8 +3,11 @@
 import React, { useEffect, useState } from "react";
 import { WSS_URL } from "@/config";
 import Canvas from "./Canvas";
+import { useProtectedRoute } from "@/hooks/useAuth";
 
 export default function RoomCanvas({ roomId }: { roomId: string }) {
+  useProtectedRoute();
+
   const [socket, setSocket] = useState<WebSocket | null>(null);
 
   useEffect(() => {

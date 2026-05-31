@@ -6,8 +6,11 @@ import Link from 'next/link';
 import axios, { AxiosError } from 'axios';
 import { useRouter } from "next/navigation";
 import { BACKEND_URL } from '@/config';
+import { useRedirectIfAuthenticated } from '@/hooks/useAuth';
 
 const Login: React.FC = () => {
+  useRedirectIfAuthenticated();
+  
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
   const [formData, setFormData] = useState({

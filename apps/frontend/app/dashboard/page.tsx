@@ -15,6 +15,7 @@ import {
 import { useRouter } from "next/navigation";
 import axios from 'axios';
 import { BACKEND_URL } from '@/config';
+import { useProtectedRoute } from '@/hooks/useAuth';
 
 interface Room {
   id: string;
@@ -24,6 +25,8 @@ interface Room {
 }
 
 const Dashboard: React.FC = () => {
+  useProtectedRoute();
+  
   const [showCreateRoom, setShowCreateRoom] = useState(false);
   const [roomName, setRoomName] = useState('');
   const [roomDescription, setRoomDescription] = useState('');
@@ -98,6 +101,11 @@ const Dashboard: React.FC = () => {
     router.push(`/canvas/${roomId}`);
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    router.push('/signin');
+  };
+
   const filteredRooms = rooms.filter(room => 
     room.slug.toLowerCase().includes(searchTerm.toLowerCase()) || 
     room.description?.toLowerCase().includes(searchTerm.toLowerCase())
@@ -123,9 +131,14 @@ const Dashboard: React.FC = () => {
                 <Plus className="w-4 h-4" />
                 <span>Create Room</span>
               </button>
-              <div className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center">
-                <UserIcon className="w-4 h-4 text-gray-400" />
-              </div>
+              <button 
+                onClick={handleLogout}
+                className="flex items-center space-x-2 bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white px-3 py-2 rounded-lg transition-colors text-sm font-semibold"
+                title="Logout"
+              >
+                <UserIcon className="w-4 h-4" />
+                <span className="hidden sm:inline">Logout</span>
+              </button>
             </div>
           </div>
         </div>

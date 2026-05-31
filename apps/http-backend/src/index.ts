@@ -16,6 +16,8 @@ dotenv.config();
 const app = express();
 app.use(json());
 
+app.set('trust proxy', true);
+
 // Configure CORS for production safety
 const allowedOrigins = (process.env.ALLOWED_ORIGINS || 'http://localhost:3000' || 'https://opendraw-http-backend.onrender.com'
   || "wss://opendraw-ws-backend.onrender.com"

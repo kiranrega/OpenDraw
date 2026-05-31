@@ -3,7 +3,12 @@ import { ChatMessageSchema } from "@repo/common/types"
 import axios from "axios"
 
 export async function getExistingShapes(roomId:string) {
-    const res = await axios.get(`${BACKEND_URL}/chats/${roomId}`)
+    const token = localStorage.getItem("token");
+    const res = await axios.get(`${BACKEND_URL}/chats/${roomId}`, {
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    })
     const messages = res.data.messages
     
     const shapes = messages.map((shape:{message:string}) => {
