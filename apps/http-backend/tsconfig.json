@@ -1,5 +1,5 @@
 {
-    "extends": "@repo/typescript-config/base.json",
+  "extends": "@repo/typescript-config/base.json",
   "compilerOptions": {
     "target": "ES2022",
     "module": "NodeNext",
@@ -11,7 +11,7 @@
     "strict": true,
     "skipLibCheck": true
   },
-  "include": ["src"]
-
-
+  "include": [
+    "src"
+  ],
 }
