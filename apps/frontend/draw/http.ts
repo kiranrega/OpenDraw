@@ -4,7 +4,16 @@ import axios from "axios"
 
 export async function getExistingShapes(roomId:string) {
     const token = localStorage.getItem("token");
-    const res = await axios.get(`${BACKEND_URL}/chats/${roomId}`, {
+    
+    // Convert roomId to number if it's a string
+    const numericRoomId = typeof roomId === 'string' ? parseInt(roomId, 10) : roomId;
+    
+    if (isNaN(numericRoomId) || numericRoomId <= 0) {
+        console.error("Invalid room ID:", roomId);
+        return [];
+    }
+    
+    const res = await axios.get(`${BACKEND_URL}/chats/${numericRoomId}`, {
         headers: {
             Authorization: `Bearer ${token}`
         }

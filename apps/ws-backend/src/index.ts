@@ -4,8 +4,8 @@ import { prismaClient } from "@repo/db/client";
 import { ChatMessageSchema } from "@repo/common/types";
 import dotenv from "dotenv";
 
-const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 8080;
 dotenv.config();
+const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3002;
 const wss = new WebSocketServer({ port: PORT });
 
 interface User {
@@ -178,3 +178,5 @@ wss.on("connection", function connection(ws, request) {
     console.error("WebSocket error:", err);
   });
 });
+
+console.log(`✅ WebSocket server running on port ${PORT}`);

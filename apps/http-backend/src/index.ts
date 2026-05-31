@@ -16,7 +16,11 @@ dotenv.config();
 const app = express();
 app.use(json());
 
-app.set('trust proxy', true);
+// Configure trust proxy based on environment
+// In production (Render), trust 1 proxy (Render's reverse proxy)
+// In local development, don't trust any proxies (to avoid rate limit bypass)
+const isProduction = process.env.NODE_ENV === 'production';
+app.set('trust proxy', isProduction ? 1 : false);
 
 // Configure CORS for production safety
 const allowedOrigins = (process.env.ALLOWED_ORIGINS || 'http://localhost:3000' || 'https://opendraw-http-backend.onrender.com'

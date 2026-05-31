@@ -106,7 +106,7 @@ export class Game {
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
   private existingShapes: Shape[];
-  private roomId: string;
+  private roomId: number;
   private clicked: boolean;
   private startX = 0;
   private startY = 0;
@@ -129,7 +129,15 @@ export class Game {
     this.canvas = canvas;
     this.ctx = canvas.getContext("2d")!;
     this.existingShapes = [];
-    this.roomId = roomId;
+    
+    // Convert roomId to number, handling both string and numeric inputs
+    const numericRoomId = typeof roomId === 'string' ? parseInt(roomId, 10) : roomId;
+    if (isNaN(numericRoomId) || numericRoomId <= 0) {
+      console.error("Invalid room ID:", roomId);
+      throw new Error("Invalid room ID provided");
+    }
+    this.roomId = numericRoomId;
+    
     this.socket = socket;
     this.clicked = false;
     this.init();
@@ -201,7 +209,7 @@ export class Game {
   }
 
   async init() {
-    this.existingShapes = await getExistingShapes(this.roomId);
+    this.existingShapes = await getExistingShapes(this.roomId.toString());
     // Ensure all existing shapes have IDs
     this.existingShapes = this.existingShapes.map((shape) => {
       if (!shape.id) {
