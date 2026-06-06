@@ -25,6 +25,9 @@ export const ShapeSchema = z.union([
     y: z.number(),
     width: z.number(),
     height: z.number(),
+    color: z.string().optional(),
+    strokeWidth: z.number().optional(),
+    isDashed: z.boolean().optional(),
   }),
   z.object({
     id: z.string(),
@@ -32,6 +35,9 @@ export const ShapeSchema = z.union([
     centerX: z.number(),
     centerY: z.number(),
     radius: z.number(),
+    color: z.string().optional(),
+    strokeWidth: z.number().optional(),
+    isDashed: z.boolean().optional(),
   }),
   z.object({
     id: z.string(),
@@ -40,6 +46,9 @@ export const ShapeSchema = z.union([
     startY: z.number(),
     endX: z.number(),
     endY: z.number(),
+    color: z.string().optional(),
+    strokeWidth: z.number().optional(),
+    isDashed: z.boolean().optional(),
   }),
   z.object({
     id: z.string(),
@@ -48,6 +57,20 @@ export const ShapeSchema = z.union([
     centerY: z.number(),
     width: z.number(),
     height: z.number(),
+    color: z.string().optional(),
+    strokeWidth: z.number().optional(),
+    isDashed: z.boolean().optional(),
+  }),
+  z.object({
+    id: z.string(),
+    type: z.literal("arrow"),
+    startX: z.number(),
+    startY: z.number(),
+    endX: z.number(),
+    endY: z.number(),
+    color: z.string().optional(),
+    strokeWidth: z.number().optional(),
+    isDashed: z.boolean().optional(),
   }),
   z.object({
     id: z.string(),
@@ -56,6 +79,7 @@ export const ShapeSchema = z.union([
     y: z.number(),
     text: z.string().max(500), // Limit text length to prevent abuse
     fontSize: z.number().min(8).max(72),
+    color: z.string().optional(),
   }),
 ]);
 

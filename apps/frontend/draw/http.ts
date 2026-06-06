@@ -4,6 +4,9 @@ import axios from "axios"
 
 export async function getExistingShapes(roomId:string) {
     const token = localStorage.getItem("token");
+    if (!token) {
+        return [];
+    }
     
     // Convert roomId to number if it's a string
     const numericRoomId = typeof roomId === 'string' ? parseInt(roomId, 10) : roomId;

@@ -3,15 +3,16 @@
 import React, { useEffect, useState } from "react";
 import { WSS_URL } from "@/config";
 import Canvas from "./Canvas";
-import { useProtectedRoute } from "@/hooks/useAuth";
+import { useRouter } from "next/navigation";
 
 export default function RoomCanvas({ roomId }: { roomId: string }) {
-  useProtectedRoute();
-
+  const router = useRouter();
   const [socket, setSocket] = useState<WebSocket | null>(null);
+  const [hasToken, setHasToken] = useState<boolean>(true);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
+    setHasToken(!!token);
     
     // Convert roomId to number
     const numericRoomId = typeof roomId === 'string' ? parseInt(roomId, 10) : roomId;
@@ -22,7 +23,20 @@ export default function RoomCanvas({ roomId }: { roomId: string }) {
     }
     
     if (!token) {
-      console.error("No authentication token found");
+      console.log("No authentication token found. Initializing sandbox guest session.");
+      // Create a mock socket
+      const mockWs = {
+        send: (data: string) => {
+          console.log("Sandbox socket send (not synced):", data);
+        },
+        onmessage: null,
+        readyState: 1, // WebSocket.OPEN
+        addEventListener: () => {},
+        removeEventListener: () => {},
+        close: () => {}
+      } as unknown as WebSocket;
+      
+      setSocket(mockWs);
       return;
     }
     
@@ -66,8 +80,21 @@ export default function RoomCanvas({ roomId }: { roomId: string }) {
   }
 
   return (
-    <>
+    <div className="relative w-full h-screen overflow-hidden">
+      {!hasToken && (
+        <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-amber-500/10 border border-amber-500/25 text-amber-200 px-4 py-2 rounded-lg text-xs font-medium backdrop-blur-md shadow-sm z-30 flex items-center space-x-2 select-none">
+          <span className="w-1.5 h-1.5 bg-amber-400 rounded-full animate-ping" />
+          <span>Sandbox Mode (Local Only)</span>
+          <span className="text-amber-500/30">•</span>
+          <button 
+            onClick={() => router.push('/signin')}
+            className="text-white hover:underline font-semibold cursor-pointer"
+          >
+            Sign in to save & collaborate
+          </button>
+        </div>
+      )}
       <Canvas roomId={roomId} socket={socket} />
-    </>
+    </div>
   );
 }

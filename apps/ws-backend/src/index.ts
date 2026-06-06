@@ -97,13 +97,46 @@ wss.on("connection", function connection(ws, request) {
           return;
         }
 
-        await prismaClient.chat.create({
-          data: {
-            roomId: Number(roomId),
-            message,
-            userId,
-          },
-        });
+        // If a shape with this ID already exists in the room, update it. Otherwise, create a new one.
+        let chatRecord = null;
+        try {
+          const roomChats = await prismaClient.chat.findMany({
+            where: {
+              roomId: Number(roomId)
+            }
+          });
+          for (const chat of roomChats) {
+            try {
+              const parsed = JSON.parse(chat.message);
+              if (parsed.shape && parsed.shape.id === validation.data.shape.id) {
+                chatRecord = chat;
+                break;
+              }
+            } catch (e) {}
+          }
+        } catch (dbErr) {
+          console.error("Error searching existing shape:", dbErr);
+        }
+
+        if (chatRecord) {
+          await prismaClient.chat.update({
+            where: {
+              id: chatRecord.id
+            },
+            data: {
+              message
+            }
+          });
+        } else {
+          await prismaClient.chat.create({
+            data: {
+              roomId: Number(roomId),
+              message,
+              userId,
+            },
+          });
+        }
+
         users.forEach((user) => {
           if (user.rooms.includes(roomId)) {
             user.ws.send(

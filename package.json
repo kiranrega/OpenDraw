@@ -9,10 +9,10 @@
     "check-types": "turbo run check-types"
   },
   "devDependencies": {
+    "@types/node": "22.15.3",
     "prettier": "^3.6.2",
     "turbo": "^2.5.5",
-    "typescript": "5.8.3",
-    "@types/node": "^22.15.3"
+    "typescript": "5.8.3"
   },
   "pnpm": {
     "overrides": {
